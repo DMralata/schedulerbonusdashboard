@@ -489,6 +489,145 @@
             margin-top: 0.5rem;
         }
         
+        .client-breakdown-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            animation: fadeInUp 0.6s ease-out 0.7s both;
+        }
+        
+        .client-table-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+        }
+        
+        .client-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+        }
+        
+        .client-table thead {
+            background: var(--bg-primary);
+        }
+        
+        .client-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .client-table th:last-child {
+            text-align: center;
+        }
+        
+        .client-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .client-table tbody tr {
+            transition: background 0.2s ease;
+        }
+        
+        .client-table tbody tr:hover {
+            background: var(--bg-primary);
+        }
+        
+        .client-table tbody tr.above-target {
+            background: rgba(72, 187, 120, 0.03);
+        }
+        
+        .client-table tbody tr.below-target {
+            background: rgba(245, 101, 101, 0.03);
+        }
+        
+        .client-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .client-id {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .hours-cell {
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+        }
+        
+        .status-badge-small {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-badge-small.above {
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--success);
+        }
+        
+        .status-badge-small.below {
+            background: rgba(245, 101, 101, 0.1);
+            color: var(--danger);
+        }
+        
+        .attendance-rate {
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .attendance-rate.good {
+            color: var(--success);
+        }
+        
+        .attendance-rate.poor {
+            color: var(--danger);
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .sort-btn:hover {
+            border-color: var(--accent);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .sort-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+        
         .stat-card {
             background: white;
             padding: 1.5rem;
@@ -675,6 +814,32 @@
                     <div class="requirements-title">Weekly TPAR Breakdown</div>
                     <div class="weekly-tpar-grid" id="weeklyTPAR"></div>
                 </div>
+                
+                <!-- Client-by-Client Breakdown -->
+                <div class="client-breakdown-section">
+                    <div class="requirements-title">Client Performance Breakdown</div>
+                    <div class="sort-controls">
+                        <button class="sort-btn active" onclick="sortClients('rate')">Sort by Attendance %</button>
+                        <button class="sort-btn" onclick="sortClients('deficit')">Sort by Hours Behind</button>
+                        <button class="sort-btn" onclick="sortClients('name')">Sort by Name</button>
+                    </div>
+                    <div class="client-table-container">
+                        <table class="client-table" id="clientTable">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Start Date</th>
+                                    <th>Delivered Hours</th>
+                                    <th>Planned Hours</th>
+                                    <th>Difference</th>
+                                    <th>Attendance Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -831,6 +996,114 @@
             return weeklyArray;
         }
         
+        function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, billingData) {
+            const clientPerformance = [];
+            const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
+            const today = new Date();
+            const effectiveEnd = today < quarterEnd ? today : quarterEnd;
+            
+            // Get client names from billing data
+            const clientNames = new Map();
+            billingData.forEach(row => {
+                const clientId = row.ClientId || row.ClientID;
+                if (clientId && row.ClientFirstName) {
+                    const name = `${row.ClientFirstName} ${row.ClientLastName || ''}`.trim();
+                    clientNames.set(clientId, name);
+                }
+            });
+            
+            clientWeekHours.forEach((deliveredHours, clientId) => {
+                const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
+                const startDate = clientStartDates.get(clientId);
+                const clientName = clientNames.get(clientId) || 'Unknown Client';
+                
+                // Calculate weeks active
+                let weeksActive = 1;
+                if (startDate) {
+                    const clientStart = startDate < quarterStart ? quarterStart : startDate;
+                    const daysDiff = Math.max(0, (effectiveEnd - clientStart) / (1000 * 60 * 60 * 24));
+                    weeksActive = Math.max(1, Math.ceil(daysDiff / 7));
+                }
+                
+                const totalPlanned = plannedPerWeek * weeksActive;
+                const difference = deliveredHours - totalPlanned;
+                const attendanceRate = totalPlanned > 0 ? (deliveredHours / totalPlanned) * 100 : 0;
+                
+                clientPerformance.push({
+                    clientId,
+                    clientName,
+                    startDate: startDate ? startDate.toLocaleDateString() : 'N/A',
+                    delivered: deliveredHours,
+                    planned: totalPlanned,
+                    difference,
+                    rate: attendanceRate,
+                    weeksActive
+                });
+            });
+            
+            // Sort by attendance rate (lowest first to highlight problems)
+            return clientPerformance.sort((a, b) => a.rate - b.rate);
+        }
+        
+        let currentClientData = [];
+        let currentSortMode = 'rate';
+        
+        function sortClients(mode) {
+            currentSortMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Sort data
+            let sorted = [...currentClientData];
+            if (mode === 'rate') {
+                sorted.sort((a, b) => a.rate - b.rate); // Lowest first
+            } else if (mode === 'deficit') {
+                sorted.sort((a, b) => a.difference - b.difference); // Most behind first
+            } else if (mode === 'name') {
+                sorted.sort((a, b) => a.clientName.localeCompare(b.clientName));
+            }
+            
+            renderClientTable(sorted);
+        }
+        
+        function renderClientTable(clientData) {
+            const tbody = document.getElementById('clientTableBody');
+            tbody.innerHTML = '';
+            
+            clientData.forEach(client => {
+                const row = document.createElement('tr');
+                const isAbove = client.rate >= 100;
+                row.className = isAbove ? 'above-target' : 'below-target';
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="client-name">${client.clientName}</div>
+                        <div class="client-id">#${client.clientId}</div>
+                    </td>
+                    <td>${client.startDate}</td>
+                    <td class="hours-cell">${client.delivered.toFixed(1)}</td>
+                    <td class="hours-cell">${client.planned.toFixed(1)}</td>
+                    <td class="hours-cell" style="color: ${client.difference >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                        ${client.difference >= 0 ? '+' : ''}${client.difference.toFixed(1)}
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="attendance-rate ${client.rate >= 100 ? 'good' : 'poor'}">
+                            ${client.rate.toFixed(1)}%
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="status-badge-small ${client.rate >= 100 ? 'above' : 'below'}">
+                            ${client.rate >= 100 ? 'On Track' : 'Behind'}
+                        </span>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
         async function loadDashboard() {
             try {
                 // Fetch all three sheets
@@ -956,6 +1229,14 @@
                 // Calculate weekly TPAR
                 const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates);
                 
+                // Calculate client-by-client performance
+                const clientData = calculateClientPerformance(
+                    clientWeekHours, 
+                    plannedHoursMap, 
+                    clientStartDates,
+                    quarterBilling
+                );
+                
                 // Update UI
                 renderDashboard({
                     tpar,
@@ -966,7 +1247,8 @@
                     totalPlannedHours,
                     totalAuthorizedHours,
                     activeClients: activeClients.size,
-                    weeklyData
+                    weeklyData,
+                    clientData
                 });
                 
             } catch (error) {
@@ -1081,6 +1363,12 @@
                 });
             } else {
                 weeklyTPARContainer.innerHTML = '<p style="color: var(--text-dim); text-align: center;">No weekly data available yet.</p>';
+            }
+            
+            // Render Client Breakdown
+            if (data.clientData && data.clientData.length > 0) {
+                currentClientData = data.clientData;
+                renderClientTable(data.clientData);
             }
         }
         
