@@ -749,8 +749,9 @@
                     
                     if (clientId && units) {
                         const unitsNum = parseFloat(units);
-                        const hours = unitsNum / 4; // Convert 15-min units to hours
-                        authorizedUnitsMap.set(clientId, hours);
+                        const totalHours = unitsNum / 4; // Convert 15-min units to hours
+                        const hoursPerWeek = totalHours / 26; // Divide by 26 weeks (6 months)
+                        authorizedUnitsMap.set(clientId, hoursPerWeek);
                     }
                 });
                 
