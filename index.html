@@ -139,7 +139,7 @@
         
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
             animation: fadeInUp 0.6s ease-out 0.2s both;
@@ -265,6 +265,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         .metric-card {
@@ -342,7 +343,6 @@
         }
         
         .requirements-section {
-            grid-column: 1 / -1;
             background: white;
             border-radius: 20px;
             padding: 2rem;
@@ -414,11 +414,79 @@
         }
         
         .stats-grid {
-            grid-column: 1 / -1;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             animation: fadeInUp 0.6s ease-out 0.5s both;
+        }
+        
+        .weekly-tpar-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+        
+        .weekly-tpar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .week-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .week-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .week-card.above-baseline {
+            border-color: var(--success);
+            background: rgba(72, 187, 120, 0.05);
+        }
+        
+        .week-card.below-baseline {
+            border-color: var(--danger);
+            background: rgba(245, 101, 101, 0.05);
+        }
+        
+        .week-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .week-tpar {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Fira Code', monospace;
+            margin-bottom: 0.25rem;
+        }
+        
+        .week-tpar.above {
+            color: var(--success);
+        }
+        
+        .week-tpar.below {
+            color: var(--danger);
+        }
+        
+        .week-details {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
         }
         
         .stat-card {
@@ -601,6 +669,12 @@
                         <div class="stat-label">Active Clients</div>
                     </div>
                 </div>
+                
+                <!-- Weekly TPAR Breakdown -->
+                <div class="weekly-tpar-section">
+                    <div class="requirements-title">Weekly TPAR Breakdown</div>
+                    <div class="weekly-tpar-grid" id="weeklyTPAR"></div>
+                </div>
             </div>
         </div>
         
@@ -699,6 +773,62 @@
             if (improvementPP >= 4.0) return 500;
             if (improvementPP >= 2.0) return 250;
             return 0;
+        }
+        
+        function getWeekLabel(weekStart) {
+            const date = new Date(weekStart);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        
+        function calculateWeeklyTPAR(billingData, plannedHoursMap, clientStartDates) {
+            // Group billing data by week
+            const weeklyBilling = new Map();
+            
+            billingData.forEach(row => {
+                const serviceDate = new Date(row.DateOfService);
+                const clientId = row.ClientId || row.ClientID;
+                const hours = parseFloat(row.TimeWorkedInHours);
+                
+                if (!clientId || isNaN(hours)) return;
+                
+                // Check if client has started
+                const startDate = clientStartDates.get(clientId);
+                if (startDate && serviceDate < startDate) return;
+                
+                // Get week start (Monday)
+                const weekStart = new Date(serviceDate);
+                weekStart.setDate(serviceDate.getDate() - serviceDate.getDay() + (serviceDate.getDay() === 0 ? -6 : 1));
+                const weekKey = weekStart.toISOString().split('T')[0];
+                
+                if (!weeklyBilling.has(weekKey)) {
+                    weeklyBilling.set(weekKey, { delivered: 0, planned: 0, clients: new Set() });
+                }
+                
+                const weekData = weeklyBilling.get(weekKey);
+                weekData.delivered += hours;
+                weekData.clients.add(clientId);
+            });
+            
+            // Calculate planned hours for each week
+            weeklyBilling.forEach((weekData, weekKey) => {
+                weekData.clients.forEach(clientId => {
+                    const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
+                    weekData.planned += plannedPerWeek;
+                });
+            });
+            
+            // Convert to array and sort by date
+            const weeklyArray = Array.from(weeklyBilling.entries())
+                .map(([weekKey, data]) => ({
+                    weekStart: weekKey,
+                    delivered: data.delivered,
+                    planned: data.planned,
+                    tpar: data.planned > 0 ? (data.delivered / data.planned) * 100 : 0,
+                    clientCount: data.clients.size
+                }))
+                .sort((a, b) => new Date(a.weekStart) - new Date(b.weekStart));
+            
+            return weeklyArray;
         }
         
         async function loadDashboard() {
@@ -823,6 +953,9 @@
                 const improvementPP = tpar - BASELINE_TPAR;
                 const bonus = tpar >= BASELINE_TPAR && ahu >= MIN_AHU ? calculateBonus(improvementPP) : 0;
                 
+                // Calculate weekly TPAR
+                const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates);
+                
                 // Update UI
                 renderDashboard({
                     tpar,
@@ -832,7 +965,8 @@
                     totalDeliveredHours,
                     totalPlannedHours,
                     totalAuthorizedHours,
-                    activeClients: activeClients.size
+                    activeClients: activeClients.size,
+                    weeklyData
                 });
                 
             } catch (error) {
@@ -923,6 +1057,31 @@
                 ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()} | 
                 ${daysRemaining} days remaining
             `;
+            
+            // Render Weekly TPAR
+            const weeklyTPARContainer = document.getElementById('weeklyTPAR');
+            weeklyTPARContainer.innerHTML = '';
+            
+            if (data.weeklyData && data.weeklyData.length > 0) {
+                data.weeklyData.forEach(week => {
+                    const weekCard = document.createElement('div');
+                    const aboveBaseline = week.tpar >= BASELINE_TPAR;
+                    weekCard.className = `week-card ${aboveBaseline ? 'above-baseline' : 'below-baseline'}`;
+                    
+                    weekCard.innerHTML = `
+                        <div class="week-label">Week of ${getWeekLabel(week.weekStart)}</div>
+                        <div class="week-tpar ${aboveBaseline ? 'above' : 'below'}">${week.tpar.toFixed(1)}%</div>
+                        <div class="week-details">
+                            ${week.delivered.toFixed(1)} / ${week.planned.toFixed(1)} hrs<br>
+                            ${week.clientCount} clients
+                        </div>
+                    `;
+                    
+                    weeklyTPARContainer.appendChild(weekCard);
+                });
+            } else {
+                weeklyTPARContainer.innerHTML = '<p style="color: var(--text-dim); text-align: center;">No weekly data available yet.</p>';
+            }
         }
         
         function showError(error) {
