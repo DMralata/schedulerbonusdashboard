@@ -726,22 +726,31 @@
                 const clientStartDates = new Map();
                 
                 plannedData.forEach(row => {
-                    if (row.ClientId && row.PlannedHoursPerWeek) {
-                        plannedHoursMap.set(row.ClientId, parseFloat(row.PlannedHoursPerWeek));
+                    // Handle both ClientID and ClientId
+                    const clientId = row.ClientID || row.ClientId;
+                    const plannedHours = row.PlannedHoursPerWeek;
+                    const startDate = row.WeekStartDate;
+                    
+                    if (clientId && plannedHours) {
+                        plannedHoursMap.set(clientId, parseFloat(plannedHours));
                         
                         // Store the client's start date
-                        if (row.WeekStartDate) {
-                            clientStartDates.set(row.ClientId, new Date(row.WeekStartDate));
+                        if (startDate) {
+                            clientStartDates.set(clientId, new Date(startDate));
                         }
                     }
                 });
                 
                 const authorizedUnitsMap = new Map();
                 authorizedData.forEach(row => {
-                    if (row.ClientId && row.AuthorizedUnits) {
-                        const units = parseFloat(row.AuthorizedUnits);
-                        const hours = units / 4; // Convert 15-min units to hours
-                        authorizedUnitsMap.set(row.ClientId, hours);
+                    // Handle both ClientID and ClientId
+                    const clientId = row.ClientID || row.ClientId;
+                    const units = row.AuthorizedUnits;
+                    
+                    if (clientId && units) {
+                        const unitsNum = parseFloat(units);
+                        const hours = unitsNum / 4; // Convert 15-min units to hours
+                        authorizedUnitsMap.set(clientId, hours);
                     }
                 });
                 
