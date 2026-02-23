@@ -723,9 +723,16 @@
                 
                 // Create lookup maps
                 const plannedHoursMap = new Map();
+                const clientStartDates = new Map();
+                
                 plannedData.forEach(row => {
                     if (row.ClientId && row.PlannedHoursPerWeek) {
                         plannedHoursMap.set(row.ClientId, parseFloat(row.PlannedHoursPerWeek));
+                        
+                        // Store the client's start date
+                        if (row.WeekStartDate) {
+                            clientStartDates.set(row.ClientId, new Date(row.WeekStartDate));
+                        }
                     }
                 });
                 
@@ -738,17 +745,22 @@
                     }
                 });
                 
-                // Calculate delivered hours per client per week
+                // Calculate delivered hours per client per week (only after their start date)
                 const clientWeekHours = new Map();
                 quarterBilling.forEach(row => {
                     const clientId = row.ClientId;
                     const hours = parseFloat(row.TimeWorkedInHours);
+                    const serviceDate = new Date(row.DateOfService);
                     
                     if (clientId && !isNaN(hours)) {
-                        if (!clientWeekHours.has(clientId)) {
-                            clientWeekHours.set(clientId, 0);
+                        // Only count hours if client has started (after their WeekStartDate)
+                        const startDate = clientStartDates.get(clientId);
+                        if (!startDate || serviceDate >= startDate) {
+                            if (!clientWeekHours.has(clientId)) {
+                                clientWeekHours.set(clientId, 0);
+                            }
+                            clientWeekHours.set(clientId, clientWeekHours.get(clientId) + hours);
                         }
-                        clientWeekHours.set(clientId, clientWeekHours.get(clientId) + hours);
                     }
                 });
                 
@@ -776,9 +788,23 @@
                     
                     const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
                     const authorizedHours = authorizedUnitsMap.get(clientId) || 0;
+                    const startDate = clientStartDates.get(clientId);
                     
-                    totalPlannedHours += plannedPerWeek * numWeeks;
-                    totalAuthorizedHours += authorizedHours * numWeeks;
+                    // Calculate how many weeks this client has been active in the quarter
+                    let weeksActive = numWeeks;
+                    if (startDate) {
+                        const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
+                        const clientStart = startDate < quarterStart ? quarterStart : startDate;
+                        const today = new Date();
+                        const effectiveEnd = today < quarterEnd ? today : quarterEnd;
+                        
+                        // Calculate weeks between client start and now (or quarter end)
+                        const daysDiff = Math.max(0, (effectiveEnd - clientStart) / (1000 * 60 * 60 * 24));
+                        weeksActive = Math.ceil(daysDiff / 7);
+                    }
+                    
+                    totalPlannedHours += plannedPerWeek * weeksActive;
+                    totalAuthorizedHours += authorizedHours * weeksActive;
                 });
                 
                 // Calculate metrics
