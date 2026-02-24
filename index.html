@@ -585,6 +585,30 @@
             color: var(--danger);
         }
         
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .trend-indicator.improving {
+            color: var(--success);
+        }
+        
+        .trend-indicator.declining {
+            color: var(--danger);
+        }
+        
+        .trend-indicator.stable {
+            color: var(--text-dim);
+        }
+        
+        .trend-arrow {
+            font-size: 1.2rem;
+        }
+        
         .attendance-rate {
             font-family: 'Fira Code', monospace;
             font-weight: 700;
@@ -828,12 +852,12 @@
                             <thead>
                                 <tr>
                                     <th>Client</th>
-                                    <th>Start Date</th>
-                                    <th>Delivered Hours</th>
-                                    <th>Planned Hours</th>
+                                    <th>Delivered Hours (Quarter to Date)</th>
+                                    <th>Planned Hours (Quarter to Date)</th>
                                     <th>Difference</th>
                                     <th>Attendance Rate</th>
                                     <th>Status</th>
+                                    <th>Trend</th>
                                 </tr>
                             </thead>
                             <tbody id="clientTableBody"></tbody>
@@ -1012,6 +1036,34 @@
                 }
             });
             
+            // Calculate weekly hours per client for trend analysis
+            const clientWeeklyData = new Map();
+            billingData.forEach(row => {
+                const clientId = row.ClientId || row.ClientID;
+                const serviceDate = new Date(row.DateOfService);
+                const hours = parseFloat(row.TimeWorkedInHours);
+                
+                if (!clientId || isNaN(hours)) return;
+                
+                // Check if client has started
+                const startDate = clientStartDates.get(clientId);
+                if (startDate && serviceDate < startDate) return;
+                
+                // Get week start
+                const weekStart = new Date(serviceDate);
+                weekStart.setDate(serviceDate.getDate() - serviceDate.getDay() + (serviceDate.getDay() === 0 ? -6 : 1));
+                const weekKey = weekStart.toISOString().split('T')[0];
+                
+                if (!clientWeeklyData.has(clientId)) {
+                    clientWeeklyData.set(clientId, new Map());
+                }
+                const clientWeeks = clientWeeklyData.get(clientId);
+                if (!clientWeeks.has(weekKey)) {
+                    clientWeeks.set(weekKey, 0);
+                }
+                clientWeeks.set(weekKey, clientWeeks.get(weekKey) + hours);
+            });
+            
             clientWeekHours.forEach((deliveredHours, clientId) => {
                 const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
                 const startDate = clientStartDates.get(clientId);
@@ -1029,15 +1081,47 @@
                 const difference = deliveredHours - totalPlanned;
                 const attendanceRate = totalPlanned > 0 ? (deliveredHours / totalPlanned) * 100 : 0;
                 
+                // Calculate WoW trend (last 2 weeks)
+                const weeklyHours = clientWeeklyData.get(clientId);
+                let trend = 'stable';
+                let trendText = '—';
+                
+                if (weeklyHours && weeklyHours.size >= 2) {
+                    const weeks = Array.from(weeklyHours.entries()).sort((a, b) => 
+                        new Date(b[0]) - new Date(a[0])
+                    );
+                    
+                    if (weeks.length >= 2) {
+                        const lastWeekHours = weeks[0][1];
+                        const prevWeekHours = weeks[1][1];
+                        const lastWeekRate = plannedPerWeek > 0 ? (lastWeekHours / plannedPerWeek) * 100 : 0;
+                        const prevWeekRate = plannedPerWeek > 0 ? (prevWeekHours / plannedPerWeek) * 100 : 0;
+                        const change = lastWeekRate - prevWeekRate;
+                        
+                        if (Math.abs(change) > 5) { // More than 5% change
+                            if (change > 0) {
+                                trend = 'improving';
+                                trendText = `+${change.toFixed(0)}%`;
+                            } else {
+                                trend = 'declining';
+                                trendText = `${change.toFixed(0)}%`;
+                            }
+                        } else {
+                            trendText = 'Stable';
+                        }
+                    }
+                }
+                
                 clientPerformance.push({
                     clientId,
                     clientName,
-                    startDate: startDate ? startDate.toLocaleDateString() : 'N/A',
                     delivered: deliveredHours,
                     planned: totalPlanned,
                     difference,
                     rate: attendanceRate,
-                    weeksActive
+                    weeksActive,
+                    trend,
+                    trendText
                 });
             });
             
@@ -1074,28 +1158,43 @@
             
             clientData.forEach(client => {
                 const row = document.createElement('tr');
-                const isAbove = client.rate >= 100;
+                const isAbove = client.rate >= 75; // Changed to 75%
                 row.className = isAbove ? 'above-target' : 'below-target';
+                
+                // Trend arrow
+                let trendArrow = '—';
+                if (client.trend === 'improving') {
+                    trendArrow = '↗';
+                } else if (client.trend === 'declining') {
+                    trendArrow = '↘';
+                } else if (client.trendText === 'Stable') {
+                    trendArrow = '→';
+                }
                 
                 row.innerHTML = `
                     <td>
                         <div class="client-name">${client.clientName}</div>
                         <div class="client-id">#${client.clientId}</div>
                     </td>
-                    <td>${client.startDate}</td>
-                    <td class="hours-cell">${client.delivered.toFixed(1)}</td>
-                    <td class="hours-cell">${client.planned.toFixed(1)}</td>
+                    <td class="hours-cell">${client.delivered.toFixed(1)} hrs</td>
+                    <td class="hours-cell">${client.planned.toFixed(1)} hrs</td>
                     <td class="hours-cell" style="color: ${client.difference >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                        ${client.difference >= 0 ? '+' : ''}${client.difference.toFixed(1)}
+                        ${client.difference >= 0 ? '+' : ''}${client.difference.toFixed(1)} hrs
                     </td>
                     <td style="text-align: center;">
-                        <span class="attendance-rate ${client.rate >= 100 ? 'good' : 'poor'}">
+                        <span class="attendance-rate ${client.rate >= 75 ? 'good' : 'poor'}">
                             ${client.rate.toFixed(1)}%
                         </span>
                     </td>
                     <td style="text-align: center;">
-                        <span class="status-badge-small ${client.rate >= 100 ? 'above' : 'below'}">
-                            ${client.rate >= 100 ? 'On Track' : 'Behind'}
+                        <span class="status-badge-small ${client.rate >= 75 ? 'above' : 'below'}">
+                            ${client.rate >= 75 ? 'On Track' : 'Behind'}
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="trend-indicator ${client.trend}">
+                            <span class="trend-arrow">${trendArrow}</span>
+                            ${client.trendText}
                         </span>
                     </td>
                 `;
