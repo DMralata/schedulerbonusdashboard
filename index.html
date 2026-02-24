@@ -969,7 +969,7 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
         
-        function calculateWeeklyTPAR(billingData, plannedHoursMap, clientStartDates) {
+        function calculateWeeklyTPAR(billingData, plannedHoursMap, clientStartDates, clientEndDates) {
             // Group billing data by week
             const weeklyBilling = new Map();
             
@@ -980,9 +980,10 @@
                 
                 if (!clientId || isNaN(hours)) return;
                 
-                // Check if client has started
+                // Check if client has started and hasn't ended
                 const startDate = clientStartDates.get(clientId);
-                if (startDate && serviceDate < startDate) return;
+                const endDate = clientEndDates.get(clientId);
+                if ((startDate && serviceDate < startDate) || (endDate && serviceDate > endDate)) return;
                 
                 // Get week start (Monday)
                 const weekStart = new Date(serviceDate);
@@ -1020,7 +1021,7 @@
             return weeklyArray;
         }
         
-        function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, billingData) {
+        function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData) {
             const clientPerformance = [];
             const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
             const today = new Date();
@@ -1045,9 +1046,10 @@
                 
                 if (!clientId || isNaN(hours)) return;
                 
-                // Check if client has started
+                // Check if client has started and hasn't ended
                 const startDate = clientStartDates.get(clientId);
-                if (startDate && serviceDate < startDate) return;
+                const endDate = clientEndDates.get(clientId);
+                if ((startDate && serviceDate < startDate) || (endDate && serviceDate > endDate)) return;
                 
                 // Get week start
                 const weekStart = new Date(serviceDate);
@@ -1067,13 +1069,20 @@
             clientWeekHours.forEach((deliveredHours, clientId) => {
                 const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
                 const startDate = clientStartDates.get(clientId);
+                const endDate = clientEndDates.get(clientId);
                 const clientName = clientNames.get(clientId) || 'Unknown Client';
                 
-                // Calculate weeks active
+                // Calculate weeks active (between start and end dates)
                 let weeksActive = 1;
-                if (startDate) {
-                    const clientStart = startDate < quarterStart ? quarterStart : startDate;
-                    const daysDiff = Math.max(0, (effectiveEnd - clientStart) / (1000 * 60 * 60 * 24));
+                if (startDate || endDate) {
+                    // Client's effective start in this quarter
+                    const clientStart = startDate && startDate > quarterStart ? startDate : quarterStart;
+                    
+                    // Client's effective end (either their end date, today, or quarter end - whichever is earliest)
+                    let clientEnd = effectiveEnd;
+                    if (endDate && endDate < clientEnd) clientEnd = endDate;
+                    
+                    const daysDiff = Math.max(0, (clientEnd - clientStart) / (1000 * 60 * 60 * 24));
                     weeksActive = Math.max(1, Math.ceil(daysDiff / 7));
                 }
                 
@@ -1226,12 +1235,14 @@
                 // Create lookup maps
                 const plannedHoursMap = new Map();
                 const clientStartDates = new Map();
+                const clientEndDates = new Map();
                 
                 plannedData.forEach(row => {
                     // Handle both ClientID and ClientId
                     const clientId = row.ClientID || row.ClientId;
                     const plannedHours = row.PlannedHoursPerWeek;
                     const startDate = row.WeekStartDate;
+                    const endDate = row.EndDate || row.WeekEndDate; // Support both column names
                     
                     if (clientId && plannedHours) {
                         plannedHoursMap.set(clientId, parseFloat(plannedHours));
@@ -1239,6 +1250,11 @@
                         // Store the client's start date
                         if (startDate) {
                             clientStartDates.set(clientId, new Date(startDate));
+                        }
+                        
+                        // Store the client's end date (when they stopped services)
+                        if (endDate) {
+                            clientEndDates.set(clientId, new Date(endDate));
                         }
                     }
                 });
@@ -1257,7 +1273,7 @@
                     }
                 });
                 
-                // Calculate delivered hours per client per week (only after their start date)
+                // Calculate delivered hours per client per week (only after their start date and before end date)
                 const clientWeekHours = new Map();
                 quarterBilling.forEach(row => {
                     const clientId = row.ClientId;
@@ -1265,9 +1281,16 @@
                     const serviceDate = new Date(row.DateOfService);
                     
                     if (clientId && !isNaN(hours)) {
-                        // Only count hours if client has started (after their WeekStartDate)
                         const startDate = clientStartDates.get(clientId);
-                        if (!startDate || serviceDate >= startDate) {
+                        const endDate = clientEndDates.get(clientId);
+                        
+                        // Only count hours if:
+                        // 1. Client has started (after their WeekStartDate)
+                        // 2. Client hasn't ended (before their EndDate)
+                        const afterStart = !startDate || serviceDate >= startDate;
+                        const beforeEnd = !endDate || serviceDate <= endDate;
+                        
+                        if (afterStart && beforeEnd) {
                             if (!clientWeekHours.has(clientId)) {
                                 clientWeekHours.set(clientId, 0);
                             }
@@ -1301,17 +1324,24 @@
                     const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
                     const authorizedHours = authorizedUnitsMap.get(clientId) || 0;
                     const startDate = clientStartDates.get(clientId);
+                    const endDate = clientEndDates.get(clientId);
                     
                     // Calculate how many weeks this client has been active in the quarter
                     let weeksActive = numWeeks;
-                    if (startDate) {
+                    if (startDate || endDate) {
                         const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
-                        const clientStart = startDate < quarterStart ? quarterStart : startDate;
                         const today = new Date();
-                        const effectiveEnd = today < quarterEnd ? today : quarterEnd;
                         
-                        // Calculate weeks between client start and now (or quarter end)
-                        const daysDiff = Math.max(0, (effectiveEnd - clientStart) / (1000 * 60 * 60 * 24));
+                        // Client's effective start in this quarter
+                        const clientStart = startDate && startDate > quarterStart ? startDate : quarterStart;
+                        
+                        // Client's effective end (either their end date, today, or quarter end - whichever is earliest)
+                        let clientEnd = quarterEnd;
+                        if (endDate && endDate < clientEnd) clientEnd = endDate;
+                        if (today < clientEnd) clientEnd = today;
+                        
+                        // Calculate weeks between start and end
+                        const daysDiff = Math.max(0, (clientEnd - clientStart) / (1000 * 60 * 60 * 24));
                         weeksActive = Math.ceil(daysDiff / 7);
                     }
                     
@@ -1326,13 +1356,14 @@
                 const bonus = tpar >= BASELINE_TPAR && ahu >= MIN_AHU ? calculateBonus(improvementPP) : 0;
                 
                 // Calculate weekly TPAR
-                const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates);
+                const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates, clientEndDates);
                 
                 // Calculate client-by-client performance
                 const clientData = calculateClientPerformance(
                     clientWeekHours, 
                     plannedHoursMap, 
                     clientStartDates,
+                    clientEndDates,
                     quarterBilling
                 );
                 
