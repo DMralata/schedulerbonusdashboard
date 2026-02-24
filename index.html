@@ -858,6 +858,7 @@
                                     <th>Attendance Rate</th>
                                     <th>Status</th>
                                     <th>Trend</th>
+                                    <th>Last Week Delivered</th>
                                 </tr>
                             </thead>
                             <tbody id="clientTableBody"></tbody>
@@ -1090,20 +1091,23 @@
                 const difference = deliveredHours - totalPlanned;
                 const attendanceRate = totalPlanned > 0 ? (deliveredHours / totalPlanned) * 100 : 0;
                 
-                // Calculate WoW trend (last 2 weeks)
+                // Calculate WoW trend and last week's hours
                 const weeklyHours = clientWeeklyData.get(clientId);
                 let trend = 'stable';
                 let trendText = '—';
+                let lastWeekHours = 0;
                 
-                if (weeklyHours && weeklyHours.size >= 2) {
+                if (weeklyHours && weeklyHours.size >= 1) {
                     const weeks = Array.from(weeklyHours.entries()).sort((a, b) => 
                         new Date(b[0]) - new Date(a[0])
                     );
                     
+                    // Get last week's hours
+                    lastWeekHours = weeks[0][1];
+                    
                     if (weeks.length >= 2) {
-                        const lastWeekHours = weeks[0][1];
-                        const prevWeekHours = weeks[1][1];
                         const lastWeekRate = plannedPerWeek > 0 ? (lastWeekHours / plannedPerWeek) * 100 : 0;
+                        const prevWeekHours = weeks[1][1];
                         const prevWeekRate = plannedPerWeek > 0 ? (prevWeekHours / plannedPerWeek) * 100 : 0;
                         const change = lastWeekRate - prevWeekRate;
                         
@@ -1126,6 +1130,8 @@
                     clientName,
                     delivered: deliveredHours,
                     planned: totalPlanned,
+                    plannedPerWeek: plannedPerWeek,
+                    lastWeekHours: lastWeekHours,
                     difference,
                     rate: attendanceRate,
                     weeksActive,
@@ -1183,7 +1189,7 @@
                 row.innerHTML = `
                     <td>
                         <div class="client-name">${client.clientName}</div>
-                        <div class="client-id">#${client.clientId}</div>
+                        <div class="client-id">#${client.clientId} | ${client.plannedPerWeek.toFixed(1)} hrs/week planned</div>
                     </td>
                     <td class="hours-cell">${client.delivered.toFixed(1)} hrs</td>
                     <td class="hours-cell">${client.planned.toFixed(1)} hrs</td>
@@ -1206,6 +1212,7 @@
                             ${client.trendText}
                         </span>
                     </td>
+                    <td class="hours-cell" style="color: var(--accent); font-weight: 600;">${client.lastWeekHours.toFixed(1)} hrs</td>
                 `;
                 
                 tbody.appendChild(row);
