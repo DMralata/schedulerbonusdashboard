@@ -20,10 +20,6 @@
             --success: #48bb78;
             --warning: #ed8936;
             --danger: #f56565;
-            --bonus-250: #fbbf24;
-            --bonus-500: #fb923c;
-            --bonus-1250: #a78bfa;
-            --bonus-2000: #34d399;
             --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -42,55 +38,40 @@
         
         .container { max-width: 1400px; margin: 0 auto; }
         
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-            animation: fadeInDown 0.6s ease-out;
-        }
+        header { text-align: center; margin-bottom: 3rem; animation: fadeInDown 0.6s ease-out; }
         
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes scaleIn {
             from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            to   { opacity: 1; transform: scale(1); }
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin    { to { transform: rotate(360deg); } }
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
+            0%   { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
         }
         
         h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 3rem; font-weight: 800; color: white;
+            margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
         .subtitle { font-size: 1.2rem; color: rgba(255,255,255,0.9); font-weight: 300; }
         
         .loading {
-            text-align: center;
-            padding: 4rem;
-            background: var(--bg-card);
-            border-radius: 20px;
-            box-shadow: var(--shadow-xl);
+            text-align: center; padding: 4rem;
+            background: var(--bg-card); border-radius: 20px; box-shadow: var(--shadow-xl);
         }
-        
         .loading-spinner {
             width: 60px; height: 60px;
-            border: 4px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            border: 4px solid var(--border); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;
         }
         
         .error {
@@ -102,13 +83,11 @@
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem; animation: fadeInUp 0.6s ease-out 0.2s both; }
         
         .bonus-tracker {
-            grid-column: 1 / -1;
-            background: white; border-radius: 20px; padding: 2.5rem;
-            box-shadow: var(--shadow-xl); animation: scaleIn 0.6s ease-out 0.3s both;
+            grid-column: 1 / -1; background: white; border-radius: 20px;
+            padding: 2.5rem; box-shadow: var(--shadow-xl); animation: scaleIn 0.6s ease-out 0.3s both;
         }
-        
         .bonus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .bonus-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+        .bonus-title  { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
         .current-bonus {
             font-size: 3rem; font-weight: 800;
             background: linear-gradient(135deg, var(--accent), var(--accent-light));
@@ -116,776 +95,806 @@
         }
         
         .bonus-progress-container { position: relative; margin: 2rem 0; }
-        
-        .bonus-tiers { display: flex; justify-content: space-between; margin-bottom: 1rem; position: relative; }
-        
+        .bonus-tiers { display: flex; justify-content: space-between; margin-bottom: 1rem; }
         .tier {
             flex: 1; text-align: center; padding: 1rem; border-radius: 12px; margin: 0 0.5rem;
-            transition: all 0.3s ease; border: 2px solid transparent; position: relative;
+            transition: all 0.3s ease; border: 2px solid transparent;
         }
-        .tier.active { border-color: var(--accent); background: rgba(102,126,234,0.05); transform: scale(1.05); }
+        .tier.active   { border-color: var(--accent); background: rgba(102,126,234,0.05); transform: scale(1.05); }
         .tier.achieved { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); border-color: var(--success); }
-        .tier-amount { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
-        .tier-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+        .tier-amount      { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .tier-label       { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
         .tier-requirement { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem; }
         
-        .progress-bar-bg { height: 20px; background: var(--border); border-radius: 10px; overflow: hidden; position: relative; }
+        .progress-bar-bg { height: 20px; background: var(--border); border-radius: 10px; overflow: hidden; }
         .progress-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--accent-light));
             border-radius: 10px; transition: width 1s ease-out; position: relative; overflow: hidden;
         }
         .progress-bar-fill::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            content: ''; position: absolute; inset: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             animation: shimmer 2s infinite;
         }
         
         .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
-        
         .metric-card {
-            background: white; border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-md);
-            transition: all 0.3s ease; border: 2px solid transparent;
+            background: white; border-radius: 16px; padding: 2rem;
+            box-shadow: var(--shadow-md); transition: all 0.3s ease; border: 2px solid transparent;
         }
         .metric-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
-        .metric-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
-        .metric-value { font-size: 2.5rem; font-weight: 800; font-family: 'Fira Code', monospace; margin-bottom: 0.5rem; }
+        .metric-label    { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .metric-value    { font-size: 2.5rem; font-weight: 800; font-family: 'Fira Code', monospace; margin-bottom: 0.5rem; }
         .metric-value.success { color: var(--success); }
         .metric-value.warning { color: var(--warning); }
-        .metric-value.danger { color: var(--danger); }
+        .metric-value.danger  { color: var(--danger); }
         .metric-subtitle { font-size: 0.9rem; color: var(--text-dim); }
-        .metric-bar { height: 8px; background: var(--border); border-radius: 4px; margin-top: 1rem; overflow: hidden; }
+        .metric-bar      { height: 8px; background: var(--border); border-radius: 4px; margin-top: 1rem; overflow: hidden; }
         .metric-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease-out; }
         .metric-bar-fill.success { background: var(--success); }
         .metric-bar-fill.warning { background: var(--warning); }
-        .metric-bar-fill.danger { background: var(--danger); }
+        .metric-bar-fill.danger  { background: var(--danger); }
         
         .requirements-section { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-md); animation: fadeInUp 0.6s ease-out 0.4s both; }
-        .requirements-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary); }
-        .requirement-item { display: flex; align-items: center; padding: 1rem; margin-bottom: 0.75rem; border-radius: 12px; background: var(--bg-primary); border-left: 4px solid var(--border); }
-        .requirement-item.met { border-left-color: var(--success); background: rgba(72,187,120,0.05); }
-        .requirement-item.not-met { border-left-color: var(--danger); background: rgba(245,101,101,0.05); }
-        .requirement-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 800; font-size: 1.2rem; }
-        .requirement-icon.met { background: var(--success); color: white; }
-        .requirement-icon.not-met { background: var(--danger); color: white; }
-        .requirement-text { flex: 1; }
-        .requirement-label { font-weight: 600; margin-bottom: 0.25rem; }
+        .requirements-title   { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary); }
+        .requirement-item {
+            display: flex; align-items: center; padding: 1rem; margin-bottom: 0.75rem;
+            border-radius: 12px; background: var(--bg-primary); border-left: 4px solid var(--border);
+        }
+        .requirement-item.met     { border-left-color: var(--success); background: rgba(72,187,120,0.05); }
+        .requirement-item.not-met { border-left-color: var(--danger);  background: rgba(245,101,101,0.05); }
+        .requirement-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 1rem; font-weight: 800; font-size: 1.2rem;
+        }
+        .requirement-icon.met     { background: var(--success); color: white; }
+        .requirement-icon.not-met { background: var(--danger);  color: white; }
+        .requirement-text   { flex: 1; }
+        .requirement-label  { font-weight: 600; margin-bottom: 0.25rem; }
         .requirement-detail { font-size: 0.85rem; color: var(--text-dim); }
         
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; animation: fadeInUp 0.6s ease-out 0.5s both; }
+        .stat-card  { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: var(--shadow-sm); text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: 800; font-family: 'Fira Code', monospace; color: var(--accent); margin-bottom: 0.5rem; }
+        .stat-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
         
         .weekly-tpar-section { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-md); animation: fadeInUp 0.6s ease-out 0.6s both; }
-        .weekly-tpar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
-        
-        .week-card { background: var(--bg-primary); border-radius: 12px; padding: 1.25rem; text-align: center; border: 2px solid transparent; transition: all 0.3s ease; }
-        .week-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .weekly-tpar-grid    { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .week-card {
+            background: var(--bg-primary); border-radius: 12px; padding: 1.25rem;
+            text-align: center; border: 2px solid transparent; transition: all 0.3s ease;
+        }
+        .week-card:hover          { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
         .week-card.above-baseline { border-color: var(--success); background: rgba(72,187,120,0.05); }
-        .week-card.below-baseline { border-color: var(--danger); background: rgba(245,101,101,0.05); }
-        .week-label { font-size: 0.8rem; color: var(--text-dim); font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .week-tpar { font-size: 2rem; font-weight: 800; font-family: 'Fira Code', monospace; margin-bottom: 0.25rem; }
+        .week-card.below-baseline { border-color: var(--danger);  background: rgba(245,101,101,0.05); }
+        .week-label   { font-size: 0.8rem; color: var(--text-dim); font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .week-tpar    { font-size: 2rem; font-weight: 800; font-family: 'Fira Code', monospace; margin-bottom: 0.25rem; }
         .week-tpar.above { color: var(--success); }
         .week-tpar.below { color: var(--danger); }
         .week-details { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; }
         
         .client-breakdown-section { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-md); animation: fadeInUp 0.6s ease-out 0.7s both; }
-        .client-table-container { overflow-x: auto; margin-top: 1.5rem; }
+        .client-table-container   { overflow-x: auto; margin-top: 1.5rem; }
         .client-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9rem; }
         .client-table thead { background: var(--bg-primary); }
-        .client-table th { padding: 1rem; text-align: left; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border); }
-        .client-table th:last-child { text-align: center; }
-        .client-table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        .client-table th {
+            padding: 1rem; text-align: left; font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border);
+        }
+        .client-table td   { padding: 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
         .client-table tbody tr { transition: background 0.2s ease; }
-        .client-table tbody tr:hover { background: var(--bg-primary); }
+        .client-table tbody tr:hover        { background: var(--bg-primary); }
         .client-table tbody tr.above-target { background: rgba(72,187,120,0.03); }
         .client-table tbody tr.below-target { background: rgba(245,101,101,0.03); }
-        .client-name { font-weight: 600; color: var(--text-primary); }
-        .client-id { font-size: 0.8rem; color: var(--text-dim); font-family: 'Fira Code', monospace; }
+        
+        .client-name  { font-weight: 600; color: var(--text-primary); }
+        .client-meta  { font-size: 0.78rem; color: var(--text-dim); font-family: 'Fira Code', monospace; margin-top: 0.2rem; line-height: 1.7; }
+        .client-dates { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem; }
+        .client-dates .date-pill {
+            display: inline-block; padding: 0.1rem 0.5rem; border-radius: 6px;
+            background: rgba(102,126,234,0.08); color: var(--accent); font-weight: 600; font-size: 0.75rem;
+        }
+        .client-dates .date-pill.end-past {
+            background: rgba(113,128,150,0.1); color: var(--text-dim);
+        }
+        .client-dates .date-arrow { color: var(--text-dim); font-size: 0.8rem; }
+
         .hours-cell { font-family: 'Fira Code', monospace; font-weight: 600; }
-        .status-badge-small { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-        .status-badge-small.above { background: rgba(72,187,120,0.1); color: var(--success); }
-        .status-badge-small.below { background: rgba(245,101,101,0.1); color: var(--danger); }
+        .status-badge-small {
+            display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px;
+            font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .status-badge-small.above      { background: rgba(72,187,120,0.1);   color: var(--success); }
+        .status-badge-small.below      { background: rgba(245,101,101,0.1);  color: var(--danger); }
+        .status-badge-small.discharged { background: rgba(113,128,150,0.12); color: var(--text-dim); }
+
         .trend-indicator { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.85rem; font-weight: 600; }
         .trend-indicator.improving { color: var(--success); }
         .trend-indicator.declining { color: var(--danger); }
-        .trend-indicator.stable { color: var(--text-dim); }
+        .trend-indicator.stable    { color: var(--text-dim); }
         .trend-arrow { font-size: 1.2rem; }
+
         .attendance-rate { font-family: 'Fira Code', monospace; font-weight: 700; font-size: 1.1rem; }
         .attendance-rate.good { color: var(--success); }
         .attendance-rate.poor { color: var(--danger); }
-        
+
         .sort-controls { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .sort-btn { padding: 0.5rem 1rem; border: 2px solid var(--border); background: white; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-        .sort-btn:hover { border-color: var(--accent); background: rgba(102,126,234,0.05); }
+        .sort-btn {
+            padding: 0.5rem 1rem; border: 2px solid var(--border); background: white;
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+        }
+        .sort-btn:hover  { border-color: var(--accent); background: rgba(102,126,234,0.05); }
         .sort-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
-        
-        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: var(--shadow-sm); text-align: center; }
-        .stat-value { font-size: 2rem; font-weight: 800; font-family: 'Fira Code', monospace; color: var(--accent); margin-bottom: 0.5rem; }
-        .stat-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
-        
-        .quarter-info { text-align: center; margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.1); border-radius: 12px; color: white; }
-        
+
+        .quarter-info {
+            text-align: center; margin-top: 2rem; padding: 1.5rem;
+            background: rgba(255,255,255,0.1); border-radius: 12px; color: white;
+        }
+
         @media (max-width: 1024px) {
-            .main-grid { grid-template-columns: 1fr; }
             .metric-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid  { grid-template-columns: repeat(2, 1fr); }
             .bonus-tiers { flex-wrap: wrap; }
-            .tier { min-width: 45%; }
+            .tier        { min-width: 45%; }
         }
         @media (max-width: 640px) {
             body { padding: 1rem; }
-            h1 { font-size: 2rem; }
+            h1   { font-size: 2rem; }
             .current-bonus { font-size: 2rem; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .stats-grid    { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📊 Quarterly Bonus Tracker</h1>
-            <div class="subtitle">Your Path to $2,000 - Track Your Performance in Real-Time</div>
-        </header>
-        
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <p style="color: var(--text-secondary); font-size: 1.1rem;">Loading your performance data...</p>
-        </div>
-        
-        <div class="error" id="error" style="display: none;"></div>
-        
-        <div id="dashboard" style="display: none;">
-            <div class="bonus-tracker">
-                <div class="bonus-header">
-                    <div class="bonus-title">Current Quarter Bonus Progress</div>
-                    <div class="current-bonus" id="currentBonus">$0</div>
-                </div>
-                <div class="bonus-progress-container">
-                    <div class="bonus-tiers" id="bonusTiers">
-                        <div class="tier" data-tier="250">
-                            <div class="tier-amount">$250</div>
-                            <div class="tier-label">Tier 1</div>
-                            <div class="tier-requirement">+2.0 to +3.9 pp</div>
-                        </div>
-                        <div class="tier" data-tier="500">
-                            <div class="tier-amount">$500</div>
-                            <div class="tier-label">Tier 2</div>
-                            <div class="tier-requirement">+4.0 to +5.9 pp</div>
-                        </div>
-                        <div class="tier" data-tier="1250">
-                            <div class="tier-amount">$1,250</div>
-                            <div class="tier-label">Tier 3</div>
-                            <div class="tier-requirement">+6.0 to +7.9 pp</div>
-                        </div>
-                        <div class="tier" data-tier="2000">
-                            <div class="tier-amount">$2,000</div>
-                            <div class="tier-label">MAX BONUS</div>
-                            <div class="tier-requirement">+8.0+ pp</div>
-                        </div>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="bonusProgress" style="width: 0%"></div>
-                    </div>
-                </div>
+<div class="container">
+    <header>
+        <h1>📊 Quarterly Bonus Tracker</h1>
+        <div class="subtitle">Your Path to $2,000 - Track Your Performance in Real-Time</div>
+    </header>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p style="color: var(--text-secondary); font-size: 1.1rem;">Loading your performance data...</p>
+    </div>
+
+    <div class="error" id="error" style="display: none;"></div>
+
+    <div id="dashboard" style="display: none;">
+        <!-- Bonus Tracker -->
+        <div class="bonus-tracker">
+            <div class="bonus-header">
+                <div class="bonus-title">Current Quarter Bonus Progress</div>
+                <div class="current-bonus" id="currentBonus">$0</div>
             </div>
-            
-            <div class="main-grid">
-                <div class="metric-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">TPAR (Treatment Plan Attendance Rate)</div>
-                        <div class="metric-value" id="tparValue">0%</div>
-                        <div class="metric-subtitle" id="tparSubtitle">Target: ≥75% baseline</div>
-                        <div class="metric-bar"><div class="metric-bar-fill" id="tparBar" style="width: 0%"></div></div>
+            <div class="bonus-progress-container">
+                <div class="bonus-tiers">
+                    <div class="tier" data-tier="250">
+                        <div class="tier-amount">$250</div>
+                        <div class="tier-label">Tier 1</div>
+                        <div class="tier-requirement">+2.0 to +3.9 pp</div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Improvement vs Baseline</div>
-                        <div class="metric-value" id="improvementValue">+0.0 pp</div>
-                        <div class="metric-subtitle">Baseline: 75%</div>
-                        <div class="metric-bar"><div class="metric-bar-fill success" id="improvementBar" style="width: 0%"></div></div>
+                    <div class="tier" data-tier="500">
+                        <div class="tier-amount">$500</div>
+                        <div class="tier-label">Tier 2</div>
+                        <div class="tier-requirement">+4.0 to +5.9 pp</div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">AHU (Quality Guardrail)</div>
-                        <div class="metric-value" id="ahuValue">0%</div>
-                        <div class="metric-subtitle" id="ahuSubtitle">Required: ≥90%</div>
-                        <div class="metric-bar"><div class="metric-bar-fill" id="ahuBar" style="width: 0%"></div></div>
+                    <div class="tier" data-tier="1250">
+                        <div class="tier-amount">$1,250</div>
+                        <div class="tier-label">Tier 3</div>
+                        <div class="tier-requirement">+6.0 to +7.9 pp</div>
+                    </div>
+                    <div class="tier" data-tier="2000">
+                        <div class="tier-amount">$2,000</div>
+                        <div class="tier-label">MAX BONUS</div>
+                        <div class="tier-requirement">+8.0+ pp</div>
                     </div>
                 </div>
-                
-                <div class="requirements-section">
-                    <div class="requirements-title">Bonus Requirements</div>
-                    <div id="requirements"></div>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-value" id="totalDeliveredHours">0</div><div class="stat-label">Total Delivered Hours</div></div>
-                    <div class="stat-card"><div class="stat-value" id="totalPlannedHours">0</div><div class="stat-label">Total Planned Hours</div></div>
-                    <div class="stat-card"><div class="stat-value" id="totalAuthorizedHours">0</div><div class="stat-label">Total Authorized Hours</div></div>
-                    <div class="stat-card"><div class="stat-value" id="activeClients">0</div><div class="stat-label">Active Clients</div></div>
-                </div>
-                
-                <div class="weekly-tpar-section">
-                    <div class="requirements-title">Weekly TPAR Breakdown</div>
-                    <div class="weekly-tpar-grid" id="weeklyTPAR"></div>
-                </div>
-                
-                <div class="client-breakdown-section">
-                    <div class="requirements-title">Client Performance Breakdown</div>
-                    <div class="sort-controls">
-                        <button class="sort-btn active" onclick="sortClients('rate')">Sort by Attendance %</button>
-                        <button class="sort-btn" onclick="sortClients('deficit')">Sort by Hours Behind</button>
-                        <button class="sort-btn" onclick="sortClients('name')">Sort by Name</button>
-                    </div>
-                    <div class="client-table-container">
-                        <table class="client-table" id="clientTable">
-                            <thead>
-                                <tr>
-                                    <th>Client</th>
-                                    <th>Delivered Hours (QTD)</th>
-                                    <th>Planned Hours (QTD)</th>
-                                    <th>Difference</th>
-                                    <th>Attendance Rate</th>
-                                    <th>Status</th>
-                                    <th>Trend</th>
-                                    <th>Last Week Delivered</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientTableBody"></tbody>
-                        </table>
-                    </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="bonusProgress" style="width: 0%"></div>
                 </div>
             </div>
         </div>
-        
-        <div class="quarter-info">
-            <div id="quarterInfo">Loading quarter information...</div>
+
+        <div class="main-grid">
+            <!-- Metric Cards -->
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-label">TPAR (Treatment Plan Attendance Rate)</div>
+                    <div class="metric-value" id="tparValue">0%</div>
+                    <div class="metric-subtitle">Target: ≥75% baseline</div>
+                    <div class="metric-bar"><div class="metric-bar-fill" id="tparBar" style="width:0%"></div></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Improvement vs Baseline</div>
+                    <div class="metric-value" id="improvementValue">+0.0 pp</div>
+                    <div class="metric-subtitle">Baseline: 75%</div>
+                    <div class="metric-bar"><div class="metric-bar-fill success" id="improvementBar" style="width:0%"></div></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">AHU (Quality Guardrail)</div>
+                    <div class="metric-value" id="ahuValue">0%</div>
+                    <div class="metric-subtitle">Required: ≥90%</div>
+                    <div class="metric-bar"><div class="metric-bar-fill" id="ahuBar" style="width:0%"></div></div>
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="requirements-section">
+                <div class="requirements-title">Bonus Requirements</div>
+                <div id="requirements"></div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-value" id="totalDeliveredHours">0</div><div class="stat-label">Total Delivered Hours</div></div>
+                <div class="stat-card"><div class="stat-value" id="totalPlannedHours">0</div><div class="stat-label">Total Planned Hours</div></div>
+                <div class="stat-card"><div class="stat-value" id="totalAuthorizedHours">0</div><div class="stat-label">Total Authorized Hours</div></div>
+                <div class="stat-card"><div class="stat-value" id="activeClients">0</div><div class="stat-label">Active Clients</div></div>
+            </div>
+
+            <!-- Weekly TPAR -->
+            <div class="weekly-tpar-section">
+                <div class="requirements-title">Weekly TPAR Breakdown</div>
+                <div class="weekly-tpar-grid" id="weeklyTPAR"></div>
+            </div>
+
+            <!-- Client Breakdown -->
+            <div class="client-breakdown-section">
+                <div class="requirements-title">Client Performance Breakdown</div>
+                <div class="sort-controls">
+                    <button class="sort-btn active" onclick="sortClients('rate', event)">Sort by Attendance %</button>
+                    <button class="sort-btn"        onclick="sortClients('deficit', event)">Sort by Hours Behind</button>
+                    <button class="sort-btn"        onclick="sortClients('name', event)">Sort by Name</button>
+                </div>
+                <div class="client-table-container">
+                    <table class="client-table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Delivered Hrs (QTD)</th>
+                                <th>Planned Hrs (QTD)</th>
+                                <th>Difference</th>
+                                <th style="text-align:center">Attendance Rate</th>
+                                <th style="text-align:center">Status</th>
+                                <th style="text-align:center">Trend</th>
+                                <th>Last Wk Delivered</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        const BILLING_SHEET_ID       = '1IwjOdgUG-gHzaQdfwxyUtIcpkDFyFKBylfHhVJvtTe0';
-        const PLANNED_HOURS_SHEET_ID  = '12Xlc7T_uAveeSidWq1o6D_Z5yhGgtCuCfq0MBfNH0k0';
-        const AUTHORIZED_HOURS_SHEET_ID = '1tnUU6w-OHuXgaesHDnwW-uoR15Czr0Cl3L3iZIN0jUc';
-        
-        const BASELINE_TPAR = 75;
-        const MIN_AHU = 90;
 
-        // ─── DATE HELPERS ──────────────────────────────────────────────────────────
-        // Always work with "date-only" values (local midnight) so timezone offsets
-        // in new Date("YYYY-MM-DD") (which resolves to UTC midnight) never bleed
-        // into day-count arithmetic.
+    <div class="quarter-info">
+        <div id="quarterInfo">Loading quarter information...</div>
+    </div>
+</div>
 
-        function toLocalDate(value) {
-            if (!value) return null;
-            if (value instanceof Date) {
-                // Strip time component → local midnight
-                return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+<script>
+    const BILLING_SHEET_ID          = '1IwjOdgUG-gHzaQdfwxyUtIcpkDFyFKBylfHhVJvtTe0';
+    const PLANNED_HOURS_SHEET_ID    = '12Xlc7T_uAveeSidWq1o6D_Z5yhGgtCuCfq0MBfNH0k0';
+    const AUTHORIZED_HOURS_SHEET_ID = '1tnUU6w-OHuXgaesHDnwW-uoR15Czr0Cl3L3iZIN0jUc';
+
+    const BASELINE_TPAR = 75;
+    const MIN_AHU       = 90;
+
+    // ── DATE HELPERS ─────────────────────────────────────────────────────────────
+    function toLocalDate(value) {
+        if (!value) return null;
+        if (value instanceof Date) {
+            return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+        }
+        const s = String(value).trim();
+        if (!s) return null;
+
+        // ISO: YYYY-MM-DD
+        const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+
+        // US: M/D/YY or M/D/YYYY  ← supports 2-digit years like "2/9/26"
+        const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+        if (us) {
+            let year = Number(us[3]);
+            if (year < 100) year += 2000;   // "26" → 2026
+            return new Date(year, Number(us[1]) - 1, Number(us[2]));
+        }
+
+        // Fallback
+        const d = new Date(s);
+        return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function todayLocal() {
+        const n = new Date();
+        return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    }
+
+    function fmtDate(d) {
+        if (!d) return null;
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Weeks a client was active inside the quarter window.
+    // Math.round prevents floating-point day-counts inflating by a phantom week.
+    function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
+        const windowStart = (clientStartDate && clientStartDate > quarterStart)
+            ? clientStartDate : quarterStart;
+        let windowEnd = effectiveEnd;
+        if (clientEndDate && clientEndDate < windowEnd) windowEnd = clientEndDate;
+        const days = Math.max(0, (windowEnd - windowStart) / (1000 * 60 * 60 * 24));
+        return Math.max(0, Math.round((days / 7) * 10) / 10);
+    }
+
+    // Monday-anchored ISO week key from a local Date
+    function weekKey(localDate) {
+        const dow = localDate.getDay();
+        const diffToMon = (dow === 0) ? -6 : 1 - dow;
+        const mon = new Date(localDate);
+        mon.setDate(localDate.getDate() + diffToMon);
+        return mon.toISOString().split('T')[0];
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    async function fetchSheetData(sheetId) {
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch sheet ${sheetId}`);
+        return await response.text();
+    }
+
+    function parseCSV(csv) {
+        const lines = csv.trim().split('\n');
+        if (!lines.length) return [];
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+        return lines.slice(1).map(line => {
+            const values = [];
+            let current = '', inQuotes = false;
+            for (const char of line) {
+                if (char === '"') { inQuotes = !inQuotes; }
+                else if (char === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+                else { current += char; }
             }
-            const s = String(value).trim();
-            if (!s) return null;
-            // "YYYY-MM-DD" or "MM/DD/YYYY" — handle both
-            const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-            if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
-            const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-            if (us)  return new Date(Number(us[3]), Number(us[1]) - 1, Number(us[2]));
-            // Fallback: parse then strip time
-            const d = new Date(s);
-            return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
-        }
+            values.push(current.trim());
+            return headers.reduce((obj, h, i) => {
+                obj[h] = values[i] ? values[i].replace(/"/g, '') : '';
+                return obj;
+            }, {});
+        });
+    }
 
-        function todayLocal() {
-            const n = new Date();
-            return new Date(n.getFullYear(), n.getMonth(), n.getDate());
-        }
+    function getCurrentQuarter() {
+        const now = new Date();
+        const month = now.getMonth(), year = now.getFullYear();
+        let quarter, startMonth, endMonth;
+        if      (month < 3) { quarter = 1; startMonth = 0; endMonth = 2;  }
+        else if (month < 6) { quarter = 2; startMonth = 3; endMonth = 5;  }
+        else if (month < 9) { quarter = 3; startMonth = 6; endMonth = 8;  }
+        else                { quarter = 4; startMonth = 9; endMonth = 11; }
+        return {
+            quarter, year,
+            startDate: new Date(year, startMonth, 1),
+            endDate:   new Date(year, endMonth + 1, 0)
+        };
+    }
 
-        // Count how many full/partial weeks a client was active in the window
-        // (quarterStart..effectiveEnd, capped by clientStart/clientEnd).
-        // Uses Math.round to avoid floating-point day-count inflating by a phantom week.
-        function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
-            const windowStart = (clientStartDate && clientStartDate > quarterStart)
-                ? clientStartDate
-                : quarterStart;
+    function isInCurrentQuarter(dateStr) {
+        const date = toLocalDate(dateStr);
+        if (!date) return false;
+        const { startDate, endDate } = getCurrentQuarter();
+        return date >= startDate && date <= endDate;
+    }
 
-            let windowEnd = effectiveEnd;
-            if (clientEndDate && clientEndDate < windowEnd) windowEnd = clientEndDate;
+    function calculateBonus(pp) {
+        if (pp >= 8.0) return 2000;
+        if (pp >= 6.0) return 1250;
+        if (pp >= 4.0) return 500;
+        if (pp >= 2.0) return 250;
+        return 0;
+    }
 
-            const days = Math.max(0, (windowEnd - windowStart) / (1000 * 60 * 60 * 24));
-            // Use round instead of ceil: 13.9 days of "2 weeks" rounding to 3 weeks was the bug.
-            // We floor then add 1 only if there's a meaningful partial day remainder (>0.25).
-            const weeks = days / 7;
-            return Math.max(0, Math.round(weeks * 10) / 10); // keep one decimal for accuracy
-        }
-        // ──────────────────────────────────────────────────────────────────────────
+    function getWeekLabel(weekStart) {
+        return toLocalDate(weekStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
 
-        async function fetchSheetData(sheetId) {
-            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Failed to fetch sheet ${sheetId}`);
-            return await response.text();
-        }
-        
-        function parseCSV(csv) {
-            const lines = csv.trim().split('\n');
-            if (lines.length === 0) return [];
-            const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-            return lines.slice(1).map(line => {
-                const values = [];
-                let current = '';
-                let inQuotes = false;
-                for (let i = 0; i < line.length; i++) {
-                    const char = line[i];
-                    if (char === '"') { inQuotes = !inQuotes; }
-                    else if (char === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
-                    else { current += char; }
+    function calculateWeeklyTPAR(billingData, plannedHoursMap, clientStartDates, clientEndDates) {
+        const weeklyBilling = new Map();
+
+        billingData.forEach(row => {
+            const serviceDate = toLocalDate(row.DateOfService);
+            const clientId    = row.ClientId || row.ClientID;
+            const hours       = parseFloat(row.TimeWorkedInHours);
+            if (!clientId || isNaN(hours) || !serviceDate) return;
+
+            const start = clientStartDates.get(clientId);
+            const end   = clientEndDates.get(clientId);
+            if (start && serviceDate < start) return;
+            if (end   && serviceDate > end)   return;
+
+            const wk = weekKey(serviceDate);
+            if (!weeklyBilling.has(wk)) weeklyBilling.set(wk, { delivered: 0, planned: 0, clients: new Set() });
+            const wd = weeklyBilling.get(wk);
+            wd.delivered += hours;
+            wd.clients.add(clientId);
+        });
+
+        weeklyBilling.forEach(wd => {
+            wd.clients.forEach(id => { wd.planned += (plannedHoursMap.get(id) || 0); });
+        });
+
+        return Array.from(weeklyBilling.entries())
+            .map(([wk, d]) => ({
+                weekStart:   wk,
+                delivered:   d.delivered,
+                planned:     d.planned,
+                tpar:        d.planned > 0 ? (d.delivered / d.planned) * 100 : 0,
+                clientCount: d.clients.size
+            }))
+            .sort((a, b) => new Date(a.weekStart) - new Date(b.weekStart));
+    }
+
+    function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData) {
+        const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
+        const today        = todayLocal();
+        const effectiveEnd = today < quarterEnd ? today : quarterEnd;
+
+        // Client name map
+        const clientNames = new Map();
+        billingData.forEach(row => {
+            const id = row.ClientId || row.ClientID;
+            if (id && row.ClientFirstName)
+                clientNames.set(id, `${row.ClientFirstName} ${row.ClientLastName || ''}`.trim());
+        });
+
+        // Per-client weekly hours for trend
+        const clientWeeklyData = new Map();
+        billingData.forEach(row => {
+            const id          = row.ClientId || row.ClientID;
+            const serviceDate = toLocalDate(row.DateOfService);
+            const hours       = parseFloat(row.TimeWorkedInHours);
+            if (!id || isNaN(hours) || !serviceDate) return;
+
+            const start = clientStartDates.get(id);
+            const end   = clientEndDates.get(id);
+            if (start && serviceDate < start) return;
+            if (end   && serviceDate > end)   return;
+
+            const wk = weekKey(serviceDate);
+            if (!clientWeeklyData.has(id)) clientWeeklyData.set(id, new Map());
+            const cw = clientWeeklyData.get(id);
+            cw.set(wk, (cw.get(wk) || 0) + hours);
+        });
+
+        const result = [];
+
+        clientWeekHours.forEach((deliveredHours, clientId) => {
+            const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
+            const startDate      = clientStartDates.get(clientId);
+            const endDate        = clientEndDates.get(clientId);
+            const clientName     = clientNames.get(clientId) || 'Unknown Client';
+
+            const weeksActive  = calcWeeksActive(quarterStart, effectiveEnd, startDate, endDate);
+            const totalPlanned = plannedPerWeek * weeksActive;
+            const difference   = deliveredHours - totalPlanned;
+            const rate         = totalPlanned > 0 ? (deliveredHours / totalPlanned) * 100 : 0;
+
+            // Trend
+            const wkMap = clientWeeklyData.get(clientId);
+            let trend = 'stable', trendText = '—', lastWeekHours = 0;
+            if (wkMap && wkMap.size >= 1) {
+                const weeks = Array.from(wkMap.entries()).sort((a, b) => new Date(b[0]) - new Date(a[0]));
+                lastWeekHours = weeks[0][1];
+                if (weeks.length >= 2) {
+                    const lastRate = plannedPerWeek > 0 ? (lastWeekHours / plannedPerWeek) * 100 : 0;
+                    const prevRate = plannedPerWeek > 0 ? (weeks[1][1]   / plannedPerWeek) * 100 : 0;
+                    const change   = lastRate - prevRate;
+                    if (Math.abs(change) > 5) {
+                        trend     = change > 0 ? 'improving' : 'declining';
+                        trendText = `${change > 0 ? '+' : ''}${change.toFixed(0)}%`;
+                    } else { trendText = 'Stable'; }
                 }
-                values.push(current.trim());
-                return headers.reduce((obj, header, i) => {
-                    obj[header] = values[i] ? values[i].replace(/"/g, '') : '';
-                    return obj;
-                }, {});
+            }
+
+            result.push({
+                clientId, clientName,
+                delivered: deliveredHours, planned: totalPlanned,
+                plannedPerWeek, lastWeekHours,
+                difference, rate, weeksActive, trend, trendText,
+                startDate: startDate || null,
+                endDate:   endDate   || null
             });
-        }
-        
-        function getCurrentQuarter() {
-            const now = new Date();
-            const month = now.getMonth();
-            const year = now.getFullYear();
-            let quarter, startMonth, endMonth;
-            if (month < 3)       { quarter = 1; startMonth = 0;  endMonth = 2; }
-            else if (month < 6)  { quarter = 2; startMonth = 3;  endMonth = 5; }
-            else if (month < 9)  { quarter = 3; startMonth = 6;  endMonth = 8; }
-            else                 { quarter = 4; startMonth = 9;  endMonth = 11; }
-            // Use local-midnight dates for the quarter boundaries
-            const startDate = new Date(year, startMonth, 1);
-            const endDate   = new Date(year, endMonth + 1, 0);
-            return { quarter, year, startDate, endDate };
-        }
-        
-        function isInCurrentQuarter(dateStr) {
-            const date = toLocalDate(dateStr);
-            if (!date) return false;
-            const { startDate, endDate } = getCurrentQuarter();
-            return date >= startDate && date <= endDate;
-        }
-        
-        function calculateBonus(improvementPP) {
-            if (improvementPP >= 8.0) return 2000;
-            if (improvementPP >= 6.0) return 1250;
-            if (improvementPP >= 4.0) return 500;
-            if (improvementPP >= 2.0) return 250;
-            return 0;
-        }
-        
-        function getWeekLabel(weekStart) {
-            const date = toLocalDate(weekStart);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-        
-        function calculateWeeklyTPAR(billingData, plannedHoursMap, clientStartDates, clientEndDates) {
-            const weeklyBilling = new Map();
-            
-            billingData.forEach(row => {
-                const serviceDate = toLocalDate(row.DateOfService);
+        });
+
+        return result.sort((a, b) => a.rate - b.rate);
+    }
+
+    let currentClientData = [];
+
+    function sortClients(mode, evt) {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        if (evt && evt.target) evt.target.classList.add('active');
+        let sorted = [...currentClientData];
+        if      (mode === 'rate')    sorted.sort((a, b) => a.rate - b.rate);
+        else if (mode === 'deficit') sorted.sort((a, b) => a.difference - b.difference);
+        else if (mode === 'name')    sorted.sort((a, b) => a.clientName.localeCompare(b.clientName));
+        renderClientTable(sorted);
+    }
+
+    function renderClientTable(clientData) {
+        const tbody = document.getElementById('clientTableBody');
+        tbody.innerHTML = '';
+        const today = todayLocal();
+
+        clientData.forEach(client => {
+            const row        = document.createElement('tr');
+            const isAbove    = client.rate >= 75;
+            const discharged = client.endDate && client.endDate < today;
+            row.className    = isAbove ? 'above-target' : 'below-target';
+
+            const trendArrow = client.trend === 'improving'  ? '↗'
+                             : client.trend === 'declining'  ? '↘'
+                             : client.trendText === 'Stable' ? '→' : '—';
+
+            // Build date range pills
+            const startStr = client.startDate ? fmtDate(client.startDate) : null;
+            const endStr   = client.endDate   ? fmtDate(client.endDate)   : null;
+            let datePillsHTML = '';
+            if (startStr || endStr) {
+                const startPill = startStr
+                    ? `<span class="date-pill">▶ ${startStr}</span>` : '';
+                const arrow     = (startStr && endStr)
+                    ? `<span class="date-arrow">→</span>` : '';
+                const endPill   = endStr
+                    ? `<span class="date-pill ${discharged ? 'end-past' : ''}">■ ${endStr}</span>` : '';
+                datePillsHTML = `<div class="client-dates">${startPill}${arrow}${endPill}</div>`;
+            }
+
+            const statusLabel = discharged ? 'Discharged'
+                              : isAbove    ? 'On Track'
+                              :              'Behind';
+            const statusClass = discharged ? 'discharged'
+                              : isAbove    ? 'above'
+                              :              'below';
+
+            row.innerHTML = `
+                <td>
+                    <div class="client-name">${client.clientName}</div>
+                    <div class="client-meta">#${client.clientId} · ${client.plannedPerWeek.toFixed(1)} hrs/wk · ${client.weeksActive.toFixed(1)} wks active</div>
+                    ${datePillsHTML}
+                </td>
+                <td class="hours-cell">${client.delivered.toFixed(1)} hrs</td>
+                <td class="hours-cell">${client.planned.toFixed(1)} hrs</td>
+                <td class="hours-cell" style="color:${client.difference >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                    ${client.difference >= 0 ? '+' : ''}${client.difference.toFixed(1)} hrs
+                </td>
+                <td style="text-align:center">
+                    <span class="attendance-rate ${isAbove ? 'good' : 'poor'}">${client.rate.toFixed(1)}%</span>
+                </td>
+                <td style="text-align:center">
+                    <span class="status-badge-small ${statusClass}">${statusLabel}</span>
+                </td>
+                <td style="text-align:center">
+                    <span class="trend-indicator ${client.trend}">
+                        <span class="trend-arrow">${trendArrow}</span>
+                        ${client.trendText}
+                    </span>
+                </td>
+                <td class="hours-cell" style="color:var(--accent);font-weight:600">${client.lastWeekHours.toFixed(1)} hrs</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    async function loadDashboard() {
+        try {
+            const [billingCSV, plannedCSV, authorizedCSV] = await Promise.all([
+                fetchSheetData(BILLING_SHEET_ID),
+                fetchSheetData(PLANNED_HOURS_SHEET_ID),
+                fetchSheetData(AUTHORIZED_HOURS_SHEET_ID)
+            ]);
+
+            const billingData    = parseCSV(billingCSV);
+            const plannedData    = parseCSV(plannedCSV);
+            const authorizedData = parseCSV(authorizedCSV);
+
+            // Filter: current quarter + procedure 97153 only
+            const quarterBilling = billingData.filter(row =>
+                row.DateOfService &&
+                isInCurrentQuarter(row.DateOfService) &&
+                row.ProcedureCode === '97153'
+            );
+
+            // Build maps from planned-hours sheet
+            const plannedHoursMap  = new Map();
+            const clientStartDates = new Map();
+            const clientEndDates   = new Map();
+
+            plannedData.forEach(row => {
+                const clientId   = row.ClientID || row.ClientId;
+                const plannedHrs = row.PlannedHoursPerWeek;
+                if (!clientId || !plannedHrs) return;
+
+                plannedHoursMap.set(clientId, parseFloat(plannedHrs));
+
+                const startDate = toLocalDate(row.WeekStartDate);
+                if (startDate) clientStartDates.set(clientId, startDate);
+
+                // Column D: "EndDate" (also support legacy "WeekEndDate")
+                const endDate = toLocalDate(row.EndDate || row.WeekEndDate);
+                if (endDate) clientEndDates.set(clientId, endDate);
+            });
+
+            // Authorized units map
+            const authorizedUnitsMap = new Map();
+            authorizedData.forEach(row => {
+                const clientId = row.ClientID || row.ClientId;
+                if (clientId && row.AuthorizedUnits)
+                    authorizedUnitsMap.set(clientId, parseFloat(row.AuthorizedUnits) / 4 / 26);
+            });
+
+            // Aggregate delivered hours per client (respecting start / end dates)
+            const clientWeekHours = new Map();
+            quarterBilling.forEach(row => {
                 const clientId    = row.ClientId || row.ClientID;
                 const hours       = parseFloat(row.TimeWorkedInHours);
+                const serviceDate = toLocalDate(row.DateOfService);
                 if (!clientId || isNaN(hours) || !serviceDate) return;
 
-                // Respect client's own start/end window
-                const startDate = clientStartDates.get(clientId);
-                const endDate   = clientEndDates.get(clientId);
-                if (startDate && serviceDate < startDate) return;
-                if (endDate   && serviceDate > endDate)   return;
+                const start = clientStartDates.get(clientId);
+                const end   = clientEndDates.get(clientId);
+                if (start && serviceDate < start) return;
+                if (end   && serviceDate > end)   return;
 
-                // Week key — Monday-anchored
-                const dow = serviceDate.getDay(); // 0=Sun
-                const diffToMon = (dow === 0) ? -6 : 1 - dow;
-                const weekStart = new Date(serviceDate);
-                weekStart.setDate(serviceDate.getDate() + diffToMon);
-                const weekKey = weekStart.toISOString().split('T')[0];
+                clientWeekHours.set(clientId, (clientWeekHours.get(clientId) || 0) + hours);
+            });
 
-                if (!weeklyBilling.has(weekKey)) {
-                    weeklyBilling.set(weekKey, { delivered: 0, planned: 0, clients: new Set() });
-                }
-                const wd = weeklyBilling.get(weekKey);
-                wd.delivered += hours;
-                wd.clients.add(clientId);
-            });
-            
-            weeklyBilling.forEach((weekData, weekKey) => {
-                weekData.clients.forEach(clientId => {
-                    weekData.planned += (plannedHoursMap.get(clientId) || 0);
-                });
-            });
-            
-            return Array.from(weeklyBilling.entries())
-                .map(([weekKey, data]) => ({
-                    weekStart: weekKey,
-                    delivered: data.delivered,
-                    planned: data.planned,
-                    tpar: data.planned > 0 ? (data.delivered / data.planned) * 100 : 0,
-                    clientCount: data.clients.size
-                }))
-                .sort((a, b) => new Date(a.weekStart) - new Date(b.weekStart));
-        }
-        
-        function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData) {
+            // Aggregate totals
             const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
-            const today = todayLocal();
+            const today        = todayLocal();
             const effectiveEnd = today < quarterEnd ? today : quarterEnd;
 
-            // Build client name map
-            const clientNames = new Map();
-            billingData.forEach(row => {
-                const clientId = row.ClientId || row.ClientID;
-                if (clientId && row.ClientFirstName) {
-                    clientNames.set(clientId, `${row.ClientFirstName} ${row.ClientLastName || ''}`.trim());
-                }
-            });
-            
-            // Build per-client weekly hours for trend analysis
-            const clientWeeklyData = new Map();
-            billingData.forEach(row => {
-                const clientId    = row.ClientId || row.ClientID;
-                const serviceDate = toLocalDate(row.DateOfService);
-                const hours       = parseFloat(row.TimeWorkedInHours);
-                if (!clientId || isNaN(hours) || !serviceDate) return;
+            let totalDeliveredHours  = 0;
+            let totalPlannedHours    = 0;
+            let totalAuthorizedHours = 0;
+            const activeClients      = new Set();
 
-                const startDate = clientStartDates.get(clientId);
-                const endDate   = clientEndDates.get(clientId);
-                if (startDate && serviceDate < startDate) return;
-                if (endDate   && serviceDate > endDate)   return;
-
-                const dow = serviceDate.getDay();
-                const diffToMon = (dow === 0) ? -6 : 1 - dow;
-                const weekStart = new Date(serviceDate);
-                weekStart.setDate(serviceDate.getDate() + diffToMon);
-                const weekKey = weekStart.toISOString().split('T')[0];
-
-                if (!clientWeeklyData.has(clientId)) clientWeeklyData.set(clientId, new Map());
-                const cw = clientWeeklyData.get(clientId);
-                cw.set(weekKey, (cw.get(weekKey) || 0) + hours);
-            });
-
-            const clientPerformance = [];
-            
             clientWeekHours.forEach((deliveredHours, clientId) => {
-                const plannedPerWeek = plannedHoursMap.get(clientId) || 0;
-                const startDate      = clientStartDates.get(clientId);
-                const endDate        = clientEndDates.get(clientId);
-                const clientName     = clientNames.get(clientId) || 'Unknown Client';
+                activeClients.add(clientId);
+                totalDeliveredHours += deliveredHours;
 
-                // ── KEY FIX: use the shared helper so this matches the aggregate calc ──
-                const weeksActive  = calcWeeksActive(quarterStart, effectiveEnd, startDate, endDate);
-                const totalPlanned = plannedPerWeek * weeksActive;
-                const difference   = deliveredHours - totalPlanned;
-                const attendanceRate = totalPlanned > 0 ? (deliveredHours / totalPlanned) * 100 : 0;
-
-                // Trend
-                const weeklyHours = clientWeeklyData.get(clientId);
-                let trend = 'stable', trendText = '—', lastWeekHours = 0;
-                if (weeklyHours && weeklyHours.size >= 1) {
-                    const weeks = Array.from(weeklyHours.entries())
-                        .sort((a, b) => new Date(b[0]) - new Date(a[0]));
-                    lastWeekHours = weeks[0][1];
-                    if (weeks.length >= 2) {
-                        const lastRate = plannedPerWeek > 0 ? (lastWeekHours / plannedPerWeek) * 100 : 0;
-                        const prevRate = plannedPerWeek > 0 ? (weeks[1][1]   / plannedPerWeek) * 100 : 0;
-                        const change   = lastRate - prevRate;
-                        if (Math.abs(change) > 5) {
-                            trend     = change > 0 ? 'improving' : 'declining';
-                            trendText = `${change > 0 ? '+' : ''}${change.toFixed(0)}%`;
-                        } else { trendText = 'Stable'; }
-                    }
-                }
-                
-                clientPerformance.push({
-                    clientId, clientName, delivered: deliveredHours,
-                    planned: totalPlanned, plannedPerWeek, lastWeekHours,
-                    difference, rate: attendanceRate, weeksActive, trend, trendText,
-                    // Expose end date so the UI can flag discharged clients
-                    endDate: endDate || null
-                });
-            });
-            
-            return clientPerformance.sort((a, b) => a.rate - b.rate);
-        }
-        
-        let currentClientData = [];
-        
-        function sortClients(mode) {
-            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            let sorted = [...currentClientData];
-            if (mode === 'rate')    sorted.sort((a, b) => a.rate - b.rate);
-            else if (mode === 'deficit') sorted.sort((a, b) => a.difference - b.difference);
-            else if (mode === 'name')    sorted.sort((a, b) => a.clientName.localeCompare(b.clientName));
-            renderClientTable(sorted);
-        }
-        
-        function renderClientTable(clientData) {
-            const tbody = document.getElementById('clientTableBody');
-            tbody.innerHTML = '';
-            const today = todayLocal();
-
-            clientData.forEach(client => {
-                const row = document.createElement('tr');
-                const isAbove    = client.rate >= 75;
-                // A client is "discharged" if their EndDate is in the past
-                const discharged = client.endDate && client.endDate < today;
-                row.className = isAbove ? 'above-target' : 'below-target';
-
-                let trendArrow = '—';
-                if (client.trend === 'improving')      trendArrow = '↗';
-                else if (client.trend === 'declining') trendArrow = '↘';
-                else if (client.trendText === 'Stable') trendArrow = '→';
-
-                const dischargedNote = discharged
-                    ? `<span style="color: var(--text-dim); font-size: 0.75rem;"> · Discharged ${client.endDate.toLocaleDateString()}</span>`
-                    : '';
-
-                row.innerHTML = `
-                    <td>
-                        <div class="client-name">${client.clientName}${dischargedNote}</div>
-                        <div class="client-id">#${client.clientId} | ${client.plannedPerWeek.toFixed(1)} hrs/wk planned | ${client.weeksActive.toFixed(1)} wks active</div>
-                    </td>
-                    <td class="hours-cell">${client.delivered.toFixed(1)} hrs</td>
-                    <td class="hours-cell">${client.planned.toFixed(1)} hrs</td>
-                    <td class="hours-cell" style="color: ${client.difference >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                        ${client.difference >= 0 ? '+' : ''}${client.difference.toFixed(1)} hrs
-                    </td>
-                    <td style="text-align: center;">
-                        <span class="attendance-rate ${isAbove ? 'good' : 'poor'}">
-                            ${client.rate.toFixed(1)}%
-                        </span>
-                    </td>
-                    <td style="text-align: center;">
-                        <span class="status-badge-small ${isAbove ? 'above' : 'below'}">
-                            ${discharged ? 'Discharged' : (isAbove ? 'On Track' : 'Behind')}
-                        </span>
-                    </td>
-                    <td style="text-align: center;">
-                        <span class="trend-indicator ${client.trend}">
-                            <span class="trend-arrow">${trendArrow}</span>
-                            ${client.trendText}
-                        </span>
-                    </td>
-                    <td class="hours-cell" style="color: var(--accent); font-weight: 600;">${client.lastWeekHours.toFixed(1)} hrs</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-        
-        async function loadDashboard() {
-            try {
-                const [billingCSV, plannedCSV, authorizedCSV] = await Promise.all([
-                    fetchSheetData(BILLING_SHEET_ID),
-                    fetchSheetData(PLANNED_HOURS_SHEET_ID),
-                    fetchSheetData(AUTHORIZED_HOURS_SHEET_ID)
-                ]);
-                
-                const billingData    = parseCSV(billingCSV);
-                const plannedData    = parseCSV(plannedCSV);
-                const authorizedData = parseCSV(authorizedCSV);
-                
-                // Only 97153 sessions in the current quarter
-                const quarterBilling = billingData.filter(row =>
-                    row.DateOfService &&
-                    isInCurrentQuarter(row.DateOfService) &&
-                    row.ProcedureCode === '97153'
+                const plannedPerWeek = plannedHoursMap.get(clientId)    || 0;
+                const authPerWeek    = authorizedUnitsMap.get(clientId) || 0;
+                const weeksActive    = calcWeeksActive(
+                    quarterStart, effectiveEnd,
+                    clientStartDates.get(clientId),
+                    clientEndDates.get(clientId)
                 );
-                
-                // Build lookup maps from planned-hours sheet
-                const plannedHoursMap  = new Map();
-                const clientStartDates = new Map();
-                const clientEndDates   = new Map();
-                
-                plannedData.forEach(row => {
-                    const clientId    = row.ClientID || row.ClientId;
-                    const plannedHrs  = row.PlannedHoursPerWeek;
-                    const startStr    = row.WeekStartDate;
-                    // ── KEY FIX: read EndDate (col D) explicitly; also support legacy name ──
-                    const endStr      = row.EndDate || row.WeekEndDate;
 
-                    if (!clientId || !plannedHrs) return;
-
-                    plannedHoursMap.set(clientId, parseFloat(plannedHrs));
-
-                    const startDate = toLocalDate(startStr);
-                    if (startDate) clientStartDates.set(clientId, startDate);
-
-                    const endDate = toLocalDate(endStr);
-                    if (endDate) clientEndDates.set(clientId, endDate);
-                });
-                
-                // Authorized units map
-                const authorizedUnitsMap = new Map();
-                authorizedData.forEach(row => {
-                    const clientId = row.ClientID || row.ClientId;
-                    const units    = row.AuthorizedUnits;
-                    if (clientId && units) {
-                        const hoursPerWeek = parseFloat(units) / 4 / 26;
-                        authorizedUnitsMap.set(clientId, hoursPerWeek);
-                    }
-                });
-                
-                // Aggregate delivered hours per client, respecting start/end dates
-                const clientWeekHours = new Map();
-                quarterBilling.forEach(row => {
-                    const clientId    = row.ClientId || row.ClientID;
-                    const hours       = parseFloat(row.TimeWorkedInHours);
-                    const serviceDate = toLocalDate(row.DateOfService);
-                    if (!clientId || isNaN(hours) || !serviceDate) return;
-
-                    const startDate = clientStartDates.get(clientId);
-                    const endDate   = clientEndDates.get(clientId);
-
-                    // ── KEY FIX: use toLocalDate-based dates for comparison (no UTC bleed) ──
-                    if (startDate && serviceDate < startDate) return;
-                    if (endDate   && serviceDate > endDate)   return;
-
-                    clientWeekHours.set(clientId, (clientWeekHours.get(clientId) || 0) + hours);
-                });
-                
-                // Aggregate totals
-                const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
-                const today        = todayLocal();
-                const effectiveEnd = today < quarterEnd ? today : quarterEnd;
-
-                let totalDeliveredHours  = 0;
-                let totalPlannedHours    = 0;
-                let totalAuthorizedHours = 0;
-                const activeClients      = new Set();
-                
-                clientWeekHours.forEach((deliveredHours, clientId) => {
-                    activeClients.add(clientId);
-                    totalDeliveredHours += deliveredHours;
-
-                    const plannedPerWeek = plannedHoursMap.get(clientId)    || 0;
-                    const authPerWeek    = authorizedUnitsMap.get(clientId) || 0;
-                    const startDate      = clientStartDates.get(clientId);
-                    const endDate        = clientEndDates.get(clientId);
-
-                    // ── KEY FIX: use shared helper for consistent week counting ──
-                    const weeksActive = calcWeeksActive(quarterStart, effectiveEnd, startDate, endDate);
-
-                    totalPlannedHours    += plannedPerWeek * weeksActive;
-                    totalAuthorizedHours += authPerWeek    * weeksActive;
-                });
-                
-                const tpar          = totalPlannedHours > 0 ? (totalDeliveredHours / totalPlannedHours) * 100 : 0;
-                const ahu           = totalAuthorizedHours > 0 ? (totalPlannedHours / totalAuthorizedHours) * 100 : 0;
-                const improvementPP = tpar - BASELINE_TPAR;
-                const bonus         = (tpar >= BASELINE_TPAR && ahu >= MIN_AHU) ? calculateBonus(improvementPP) : 0;
-                
-                const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates, clientEndDates);
-                const clientData = calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, quarterBilling);
-                
-                renderDashboard({ tpar, ahu, improvementPP, bonus, totalDeliveredHours, totalPlannedHours, totalAuthorizedHours, activeClients: activeClients.size, weeklyData, clientData });
-                
-            } catch (error) {
-                showError(error);
-            }
-        }
-        
-        function renderDashboard(data) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            
-            document.getElementById('currentBonus').textContent = `$${data.bonus.toLocaleString()}`;
-            
-            const tparValue = document.getElementById('tparValue');
-            tparValue.textContent = `${data.tpar.toFixed(1)}%`;
-            tparValue.className = 'metric-value ' + (data.tpar >= BASELINE_TPAR ? 'success' : 'danger');
-            document.getElementById('tparBar').style.width = `${Math.min(data.tpar, 100)}%`;
-            document.getElementById('tparBar').className = 'metric-bar-fill ' + (data.tpar >= BASELINE_TPAR ? 'success' : 'danger');
-            
-            const impV = document.getElementById('improvementValue');
-            impV.textContent = `${data.improvementPP >= 0 ? '+' : ''}${data.improvementPP.toFixed(1)} pp`;
-            impV.className = 'metric-value ' + (data.improvementPP >= 2.0 ? 'success' : 'warning');
-            document.getElementById('improvementBar').style.width = `${Math.max(0, Math.min((data.improvementPP / 10) * 100, 100))}%`;
-            
-            const ahuValue = document.getElementById('ahuValue');
-            ahuValue.textContent = `${data.ahu.toFixed(1)}%`;
-            ahuValue.className = 'metric-value ' + (data.ahu >= MIN_AHU ? 'success' : 'danger');
-            document.getElementById('ahuBar').style.width = `${Math.min(data.ahu, 100)}%`;
-            document.getElementById('ahuBar').className = 'metric-bar-fill ' + (data.ahu >= MIN_AHU ? 'success' : 'danger');
-            
-            document.querySelectorAll('.tier').forEach(tier => {
-                const tv = parseInt(tier.dataset.tier);
-                tier.classList.remove('active', 'achieved');
-                if (tv === data.bonus) tier.classList.add('active');
-                else if (tv < data.bonus) tier.classList.add('achieved');
+                totalPlannedHours    += plannedPerWeek * weeksActive;
+                totalAuthorizedHours += authPerWeek    * weeksActive;
             });
-            document.getElementById('bonusProgress').style.width = `${(data.bonus / 2000) * 100}%`;
-            
-            document.getElementById('totalDeliveredHours').textContent = data.totalDeliveredHours.toFixed(1);
-            document.getElementById('totalPlannedHours').textContent   = data.totalPlannedHours.toFixed(1);
-            document.getElementById('totalAuthorizedHours').textContent = data.totalAuthorizedHours.toFixed(1);
-            document.getElementById('activeClients').textContent = data.activeClients;
-            
-            document.getElementById('requirements').innerHTML = `
-                <div class="requirement-item ${data.tpar >= BASELINE_TPAR ? 'met' : 'not-met'}">
-                    <div class="requirement-icon ${data.tpar >= BASELINE_TPAR ? 'met' : 'not-met'}">${data.tpar >= BASELINE_TPAR ? '✓' : '✗'}</div>
-                    <div class="requirement-text">
-                        <div class="requirement-label">TPAR ≥ 75% Baseline</div>
-                        <div class="requirement-detail">Current: ${data.tpar.toFixed(1)}% ${data.tpar >= BASELINE_TPAR ? '(Requirement Met ✓)' : '(Below Baseline)'}</div>
-                    </div>
-                </div>
-                <div class="requirement-item ${data.ahu >= MIN_AHU ? 'met' : 'not-met'}">
-                    <div class="requirement-icon ${data.ahu >= MIN_AHU ? 'met' : 'not-met'}">${data.ahu >= MIN_AHU ? '✓' : '✗'}</div>
-                    <div class="requirement-text">
-                        <div class="requirement-label">AHU ≥ 90% (Quality Guardrail)</div>
-                        <div class="requirement-detail">Current: ${data.ahu.toFixed(1)}% ${data.ahu >= MIN_AHU ? '(Requirement Met ✓)' : '(Below Required)'}</div>
-                    </div>
-                </div>
-            `;
-            
-            const { quarter, year, startDate, endDate } = getCurrentQuarter();
-            const today = todayLocal();
-            const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-            document.getElementById('quarterInfo').innerHTML =
-                `Q${quarter} ${year} Performance | ${startDate.toLocaleDateString()} – ${endDate.toLocaleDateString()} | ${daysRemaining} days remaining`;
-            
-            const weeklyTPARContainer = document.getElementById('weeklyTPAR');
-            weeklyTPARContainer.innerHTML = '';
-            if (data.weeklyData && data.weeklyData.length > 0) {
-                data.weeklyData.forEach(week => {
-                    const above = week.tpar >= BASELINE_TPAR;
-                    const card  = document.createElement('div');
-                    card.className = `week-card ${above ? 'above-baseline' : 'below-baseline'}`;
-                    card.innerHTML = `
-                        <div class="week-label">Week of ${getWeekLabel(week.weekStart)}</div>
-                        <div class="week-tpar ${above ? 'above' : 'below'}">${week.tpar.toFixed(1)}%</div>
-                        <div class="week-details">${week.delivered.toFixed(1)} / ${week.planned.toFixed(1)} hrs<br>${week.clientCount} clients</div>
-                    `;
-                    weeklyTPARContainer.appendChild(card);
-                });
-            } else {
-                weeklyTPARContainer.innerHTML = '<p style="color: var(--text-dim); text-align: center;">No weekly data available yet.</p>';
-            }
-            
-            if (data.clientData && data.clientData.length > 0) {
-                currentClientData = data.clientData;
-                renderClientTable(data.clientData);
-            }
+
+            const tpar          = totalPlannedHours > 0 ? (totalDeliveredHours / totalPlannedHours) * 100 : 0;
+            const ahu           = totalAuthorizedHours > 0 ? (totalPlannedHours / totalAuthorizedHours) * 100 : 0;
+            const improvementPP = tpar - BASELINE_TPAR;
+            const bonus         = (tpar >= BASELINE_TPAR && ahu >= MIN_AHU) ? calculateBonus(improvementPP) : 0;
+
+            const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates, clientEndDates);
+            const clientData = calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, quarterBilling);
+
+            renderDashboard({ tpar, ahu, improvementPP, bonus, totalDeliveredHours, totalPlannedHours, totalAuthorizedHours, activeClients: activeClients.size, weeklyData, clientData });
+
+        } catch (error) {
+            showError(error);
         }
-        
-        function showError(error) {
-            document.getElementById('loading').style.display = 'none';
-            const errorDiv = document.getElementById('error');
-            errorDiv.style.display = 'block';
-            errorDiv.innerHTML = `
-                <h3>Error Loading Dashboard</h3>
-                <p>Could not load performance data. Please check:</p>
-                <ul>
-                    <li>All Google Sheets are set to "Anyone with the link can view"</li>
-                    <li>Sheets contain the correct column headers</li>
-                    <li>Your internet connection is working</li>
-                </ul>
-                <p style="margin-top: 1rem; font-family: monospace; font-size: 0.9rem;">Error: ${error.message}</p>
-            `;
+    }
+
+    function renderDashboard(data) {
+        document.getElementById('loading').style.display   = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        document.getElementById('currentBonus').textContent = `$${data.bonus.toLocaleString()}`;
+
+        const tparEl = document.getElementById('tparValue');
+        tparEl.textContent = `${data.tpar.toFixed(1)}%`;
+        tparEl.className   = 'metric-value ' + (data.tpar >= BASELINE_TPAR ? 'success' : 'danger');
+        const tparBar = document.getElementById('tparBar');
+        tparBar.style.width = `${Math.min(data.tpar, 100)}%`;
+        tparBar.className   = 'metric-bar-fill ' + (data.tpar >= BASELINE_TPAR ? 'success' : 'danger');
+
+        const impEl = document.getElementById('improvementValue');
+        impEl.textContent = `${data.improvementPP >= 0 ? '+' : ''}${data.improvementPP.toFixed(1)} pp`;
+        impEl.className   = 'metric-value ' + (data.improvementPP >= 2.0 ? 'success' : 'warning');
+        document.getElementById('improvementBar').style.width = `${Math.max(0, Math.min((data.improvementPP / 10) * 100, 100))}%`;
+
+        const ahuEl = document.getElementById('ahuValue');
+        ahuEl.textContent = `${data.ahu.toFixed(1)}%`;
+        ahuEl.className   = 'metric-value ' + (data.ahu >= MIN_AHU ? 'success' : 'danger');
+        const ahuBar = document.getElementById('ahuBar');
+        ahuBar.style.width = `${Math.min(data.ahu, 100)}%`;
+        ahuBar.className   = 'metric-bar-fill ' + (data.ahu >= MIN_AHU ? 'success' : 'danger');
+
+        document.querySelectorAll('.tier').forEach(tier => {
+            const tv = parseInt(tier.dataset.tier);
+            tier.classList.remove('active', 'achieved');
+            if (tv === data.bonus)    tier.classList.add('active');
+            else if (tv < data.bonus) tier.classList.add('achieved');
+        });
+        document.getElementById('bonusProgress').style.width = `${(data.bonus / 2000) * 100}%`;
+
+        document.getElementById('totalDeliveredHours').textContent  = data.totalDeliveredHours.toFixed(1);
+        document.getElementById('totalPlannedHours').textContent    = data.totalPlannedHours.toFixed(1);
+        document.getElementById('totalAuthorizedHours').textContent = data.totalAuthorizedHours.toFixed(1);
+        document.getElementById('activeClients').textContent        = data.activeClients;
+
+        document.getElementById('requirements').innerHTML = `
+            <div class="requirement-item ${data.tpar >= BASELINE_TPAR ? 'met' : 'not-met'}">
+                <div class="requirement-icon ${data.tpar >= BASELINE_TPAR ? 'met' : 'not-met'}">${data.tpar >= BASELINE_TPAR ? '✓' : '✗'}</div>
+                <div class="requirement-text">
+                    <div class="requirement-label">TPAR ≥ 75% Baseline</div>
+                    <div class="requirement-detail">Current: ${data.tpar.toFixed(1)}% ${data.tpar >= BASELINE_TPAR ? '(Requirement Met ✓)' : '(Below Baseline)'}</div>
+                </div>
+            </div>
+            <div class="requirement-item ${data.ahu >= MIN_AHU ? 'met' : 'not-met'}">
+                <div class="requirement-icon ${data.ahu >= MIN_AHU ? 'met' : 'not-met'}">${data.ahu >= MIN_AHU ? '✓' : '✗'}</div>
+                <div class="requirement-text">
+                    <div class="requirement-label">AHU ≥ 90% (Quality Guardrail)</div>
+                    <div class="requirement-detail">Current: ${data.ahu.toFixed(1)}% ${data.ahu >= MIN_AHU ? '(Requirement Met ✓)' : '(Below Required)'}</div>
+                </div>
+            </div>
+        `;
+
+        const { quarter, year, startDate, endDate } = getCurrentQuarter();
+        const today = todayLocal();
+        const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+        document.getElementById('quarterInfo').innerHTML =
+            `Q${quarter} ${year} Performance | ${startDate.toLocaleDateString()} – ${endDate.toLocaleDateString()} | ${daysRemaining} days remaining`;
+
+        const weeklyContainer = document.getElementById('weeklyTPAR');
+        weeklyContainer.innerHTML = '';
+        if (data.weeklyData && data.weeklyData.length) {
+            data.weeklyData.forEach(week => {
+                const above = week.tpar >= BASELINE_TPAR;
+                const card  = document.createElement('div');
+                card.className = `week-card ${above ? 'above-baseline' : 'below-baseline'}`;
+                card.innerHTML = `
+                    <div class="week-label">Week of ${getWeekLabel(week.weekStart)}</div>
+                    <div class="week-tpar ${above ? 'above' : 'below'}">${week.tpar.toFixed(1)}%</div>
+                    <div class="week-details">${week.delivered.toFixed(1)} / ${week.planned.toFixed(1)} hrs<br>${week.clientCount} clients</div>
+                `;
+                weeklyContainer.appendChild(card);
+            });
+        } else {
+            weeklyContainer.innerHTML = '<p style="color:var(--text-dim);text-align:center">No weekly data available yet.</p>';
         }
-        
-        loadDashboard();
-        setInterval(loadDashboard, 5 * 60 * 1000);
-    </script>
+
+        if (data.clientData && data.clientData.length) {
+            currentClientData = data.clientData;
+            renderClientTable(data.clientData);
+        }
+    }
+
+    function showError(error) {
+        document.getElementById('loading').style.display = 'none';
+        const div = document.getElementById('error');
+        div.style.display = 'block';
+        div.innerHTML = `
+            <h3>Error Loading Dashboard</h3>
+            <p>Could not load performance data. Please check:</p>
+            <ul>
+                <li>All Google Sheets are set to "Anyone with the link can view"</li>
+                <li>Sheets contain the correct column headers</li>
+                <li>Your internet connection is working</li>
+            </ul>
+            <p style="margin-top:1rem;font-family:monospace;font-size:0.9rem">Error: ${error.message}</p>
+        `;
+    }
+
+    loadDashboard();
+    setInterval(loadDashboard, 5 * 60 * 1000);
+</script>
 </body>
 </html>
