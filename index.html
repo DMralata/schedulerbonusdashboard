@@ -276,22 +276,22 @@
                     <div class="tier" data-tier="250">
                         <div class="tier-amount">$250</div>
                         <div class="tier-label">Tier 1</div>
-                        <div class="tier-requirement">+2.0 to +3.9 pp</div>
+                        <div class="tier-requirement">72–73.9% (+2 to +3.9 pp)</div>
                     </div>
                     <div class="tier" data-tier="500">
                         <div class="tier-amount">$500</div>
                         <div class="tier-label">Tier 2</div>
-                        <div class="tier-requirement">+4.0 to +5.9 pp</div>
+                        <div class="tier-requirement">74–75.9% (+4 to +5.9 pp)</div>
                     </div>
                     <div class="tier" data-tier="1250">
                         <div class="tier-amount">$1,250</div>
                         <div class="tier-label">Tier 3</div>
-                        <div class="tier-requirement">+6.0 to +7.9 pp</div>
+                        <div class="tier-requirement">76–77.9% (+6 to +7.9 pp)</div>
                     </div>
                     <div class="tier" data-tier="2000">
                         <div class="tier-amount">$2,000</div>
                         <div class="tier-label">MAX BONUS</div>
-                        <div class="tier-requirement">+8.0+ pp</div>
+                        <div class="tier-requirement">78%+ (+8 pp)</div>
                     </div>
                 </div>
                 <div class="progress-bar-bg">
@@ -305,13 +305,13 @@
                 <div class="metric-card">
                     <div class="metric-label">TPAR (Treatment Plan Attendance Rate)</div>
                     <div class="metric-value" id="tparValue">0%</div>
-                    <div class="metric-subtitle">Target: ≥75% baseline</div>
+                    <div class="metric-subtitle">Target: ≥70% baseline</div>
                     <div class="metric-bar"><div class="metric-bar-fill" id="tparBar" style="width:0%"></div></div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Improvement vs Baseline</div>
                     <div class="metric-value" id="improvementValue">+0.0 pp</div>
-                    <div class="metric-subtitle">Baseline: 75%</div>
+                    <div class="metric-subtitle">Baseline: 70%</div>
                     <div class="metric-bar"><div class="metric-bar-fill success" id="improvementBar" style="width:0%"></div></div>
                 </div>
                 <div class="metric-card">
@@ -378,7 +378,7 @@
     const PLANNED_HOURS_SHEET_ID    = '12Xlc7T_uAveeSidWq1o6D_Z5yhGgtCuCfq0MBfNH0k0';
     const AUTHORIZED_HOURS_SHEET_ID = '1tnUU6w-OHuXgaesHDnwW-uoR15Czr0Cl3L3iZIN0jUc';
 
-    const BASELINE_TPAR = 75;
+    const BASELINE_TPAR = 70;   // ← updated from 75
     const MIN_AHU       = 90;
 
     // ── DATE HELPERS ─────────────────────────────────────────────────────────────
@@ -391,11 +391,9 @@
         const s = String(value).trim();
         if (!s) return null;
 
-        // ISO: YYYY-MM-DD
         const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
 
-        // US: M/D/YY or M/D/YYYY — handles 2-digit years like "2/9/26"
         const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
         if (us) {
             let year = Number(us[3]);
@@ -417,7 +415,6 @@
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
-    // Snap a date back to its Monday
     function toMonday(d) {
         const dow  = d.getDay();
         const diff = (dow === 0) ? -6 : 1 - dow;
@@ -426,7 +423,6 @@
         return mon;
     }
 
-    // Count Mon–Fri workdays between two dates (inclusive)
     function countWorkdays(from, to) {
         let count = 0;
         const d = new Date(from);
@@ -438,25 +434,6 @@
         return count;
     }
 
-    // Calculate effective weeks active, prorating partial first and last weeks
-    // by actual workdays so a client who starts on Friday or ends on Monday
-    // isn't penalized with a full week of planned hours.
-    //
-    // Logic:
-    //   • Same calendar week → workdays(start, end) / 5
-    //   • Different weeks    → prorate first week + full middle weeks + prorate last week
-    //
-    // Examples:
-    //   Valentina: Mon Feb 23 → Fri Mar 6
-    //     first week: Mon–Fri = 5 wd / 5 = 1.0
-    //     full middle: 0
-    //     last week:  Mon–Fri Mar 2–6 = 5 wd / 5 = 1.0  → 2.0 wks × 20 = 40 hrs ✓
-    //
-    //   Zaeden: Fri Feb 6 → Mon Feb 9
-    //     startMon=Feb 2, endMon=Feb 9 (different weeks)
-    //     first week: Fri Feb 6 only = 1 wd / 5 = 0.2
-    //     full middle: 0
-    //     last week:  Mon Feb 9 only = 1 wd / 5 = 0.2  → 0.4 wks × 20 = 8 hrs ✓
     function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
         const windowStart = (clientStartDate && clientStartDate > quarterStart)
             ? clientStartDate : quarterStart;
@@ -467,28 +444,22 @@
         const startMon = toMonday(windowStart);
         const endMon   = toMonday(windowEnd);
 
-        // Same calendar week — just prorate by workdays in that window
         if (startMon.getTime() === endMon.getTime()) {
             return countWorkdays(windowStart, windowEnd) / 5;
         }
 
-        // First partial week: windowStart → Friday of that week
         const firstFri = new Date(startMon);
-        firstFri.setDate(startMon.getDate() + 4); // Monday + 4 = Friday
+        firstFri.setDate(startMon.getDate() + 4);
         const firstWeekFactor = countWorkdays(windowStart, firstFri) / 5;
+        const lastWeekFactor  = countWorkdays(endMon, windowEnd) / 5;
 
-        // Last partial week: Monday of end week → windowEnd
-        const lastWeekFactor = countWorkdays(endMon, windowEnd) / 5;
-
-        // Full weeks strictly between first and last partial weeks
-        const nextMon  = new Date(startMon);
+        const nextMon = new Date(startMon);
         nextMon.setDate(startMon.getDate() + 7);
         const fullWeeks = Math.max(0, Math.round((endMon - nextMon) / (1000 * 60 * 60 * 24 * 7)));
 
         return firstWeekFactor + fullWeeks + lastWeekFactor;
     }
 
-    // Scan all billing rows to find the latest DateOfService in the dataset
     function getLastBilledDate(billingData) {
         let latest = null;
         billingData.forEach(row => {
@@ -498,7 +469,6 @@
         return latest;
     }
 
-    // Monday-anchored ISO week key
     function weekKey(localDate) {
         return toMonday(localDate).toISOString().split('T')[0];
     }
@@ -605,7 +575,6 @@
     function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData, effectiveEnd) {
         const { startDate: quarterStart } = getCurrentQuarter();
 
-        // Client name map
         const clientNames = new Map();
         billingData.forEach(row => {
             const id = row.ClientId || row.ClientID;
@@ -613,7 +582,6 @@
                 clientNames.set(id, `${row.ClientFirstName} ${row.ClientLastName || ''}`.trim());
         });
 
-        // Per-client weekly hours for trend
         const clientWeeklyData = new Map();
         billingData.forEach(row => {
             const id          = row.ClientId || row.ClientID;
@@ -645,7 +613,6 @@
             const difference   = deliveredHours - totalPlanned;
             const rate         = totalPlanned > 0 ? (deliveredHours / totalPlanned) * 100 : 0;
 
-            // Trend
             const wkMap = clientWeeklyData.get(clientId);
             let trend = 'stable', trendText = '—', lastWeekHours = 0;
             if (wkMap && wkMap.size >= 1) {
@@ -694,7 +661,7 @@
 
         clientData.forEach(client => {
             const row        = document.createElement('tr');
-            const isAbove    = client.rate >= 75;
+            const isAbove    = client.rate >= BASELINE_TPAR;
             const discharged = client.endDate && client.endDate < today;
             row.className    = isAbove ? 'above-target' : 'below-target';
 
@@ -715,7 +682,6 @@
             const statusLabel = discharged ? 'Discharged' : isAbove ? 'On Track' : 'Behind';
             const statusClass = discharged ? 'discharged' : isAbove ? 'above'    : 'below';
 
-            // Show weeks active to 1 decimal so prorated values are visible
             const weeksDisplay = Number.isInteger(client.weeksActive)
                 ? client.weeksActive
                 : client.weeksActive.toFixed(1);
@@ -761,21 +727,18 @@
             const plannedData    = parseCSV(plannedCSV);
             const authorizedData = parseCSV(authorizedCSV);
 
-            // Filter: current quarter + procedure 97153 only
             const quarterBilling = billingData.filter(row =>
                 row.DateOfService &&
                 isInCurrentQuarter(row.DateOfService) &&
                 row.ProcedureCode === '97153'
             );
 
-            // effectiveEnd = last billed date in dataset (capped at quarter end)
             const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
             const lastBilledDate = getLastBilledDate(quarterBilling);
             const effectiveEnd   = lastBilledDate
                 ? (lastBilledDate < quarterEnd ? lastBilledDate : quarterEnd)
                 : quarterEnd;
 
-            // Build maps from planned-hours sheet
             const plannedHoursMap  = new Map();
             const clientStartDates = new Map();
             const clientEndDates   = new Map();
@@ -790,12 +753,10 @@
                 const startDate = toLocalDate(row.WeekStartDate);
                 if (startDate) clientStartDates.set(clientId, startDate);
 
-                // Column D: "EndDate" (also support legacy "WeekEndDate")
                 const endDate = toLocalDate(row.EndDate || row.WeekEndDate);
                 if (endDate) clientEndDates.set(clientId, endDate);
             });
 
-            // Authorized units map
             const authorizedUnitsMap = new Map();
             authorizedData.forEach(row => {
                 const clientId = row.ClientID || row.ClientId;
@@ -803,13 +764,15 @@
                     authorizedUnitsMap.set(clientId, parseFloat(row.AuthorizedUnits) / 4 / 26);
             });
 
-            // Aggregate delivered hours per client
             const clientWeekHours = new Map();
             quarterBilling.forEach(row => {
                 const clientId    = row.ClientId || row.ClientID;
                 const hours       = parseFloat(row.TimeWorkedInHours);
                 const serviceDate = toLocalDate(row.DateOfService);
                 if (!clientId || isNaN(hours) || !serviceDate) return;
+
+                // Only include clients that exist in planned hours sheet
+                if (!plannedHoursMap.has(clientId)) return;
 
                 const start = clientStartDates.get(clientId);
                 const end   = clientEndDates.get(clientId);
@@ -819,7 +782,6 @@
                 clientWeekHours.set(clientId, (clientWeekHours.get(clientId) || 0) + hours);
             });
 
-            // Aggregate totals — all using the same effectiveEnd
             let totalDeliveredHours  = 0;
             let totalPlannedHours    = 0;
             let totalAuthorizedHours = 0;
@@ -898,7 +860,7 @@
             <div class="requirement-item ${data.tpar >= BASELINE_TPAR ? 'met' : 'not-met'}">
                 <div class="requirement-icon ${data.tpar >= BASELINE_TPAR ? 'met' : 'not-met'}">${data.tpar >= BASELINE_TPAR ? '✓' : '✗'}</div>
                 <div class="requirement-text">
-                    <div class="requirement-label">TPAR ≥ 75% Baseline</div>
+                    <div class="requirement-label">TPAR ≥ 70% Baseline</div>
                     <div class="requirement-detail">Current: ${data.tpar.toFixed(1)}% ${data.tpar >= BASELINE_TPAR ? '(Requirement Met ✓)' : '(Below Baseline)'}</div>
                 </div>
             </div>
