@@ -37,7 +37,6 @@
         }
         
         .container { max-width: 1400px; margin: 0 auto; }
-        
         header { text-align: center; margin-bottom: 3rem; animation: fadeInDown 0.6s ease-out; }
         
         @keyframes fadeInDown {
@@ -159,6 +158,13 @@
         .stat-card  { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: var(--shadow-sm); text-align: center; }
         .stat-value { font-size: 2rem; font-weight: 800; font-family: 'Fira Code', monospace; color: var(--accent); margin-bottom: 0.5rem; }
         .stat-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+
+        .data-thru-banner {
+            background: rgba(102,126,234,0.08); border: 1px solid rgba(102,126,234,0.2);
+            border-radius: 10px; padding: 0.6rem 1.2rem; display: inline-flex;
+            align-items: center; gap: 0.5rem; font-size: 0.85rem;
+            color: var(--accent); font-weight: 600; margin-bottom: 1.5rem;
+        }
         
         .weekly-tpar-section { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-md); animation: fadeInUp 0.6s ease-out 0.6s both; }
         .weekly-tpar-grid    { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
@@ -191,7 +197,7 @@
         
         .client-name  { font-weight: 600; color: var(--text-primary); }
         .client-meta  { font-size: 0.78rem; color: var(--text-dim); font-family: 'Fira Code', monospace; margin-top: 0.2rem; line-height: 1.7; }
-        .client-dates { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem; }
+        .client-dates { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
         .client-dates .date-pill {
             display: inline-block; padding: 0.1rem 0.5rem; border-radius: 6px;
             background: rgba(102,126,234,0.08); color: var(--accent); font-weight: 600; font-size: 0.75rem;
@@ -262,7 +268,6 @@
     <div class="error" id="error" style="display: none;"></div>
 
     <div id="dashboard" style="display: none;">
-        <!-- Bonus Tracker -->
         <div class="bonus-tracker">
             <div class="bonus-header">
                 <div class="bonus-title">Current Quarter Bonus Progress</div>
@@ -298,7 +303,6 @@
         </div>
 
         <div class="main-grid">
-            <!-- Metric Cards -->
             <div class="metric-grid">
                 <div class="metric-card">
                     <div class="metric-label">TPAR (Treatment Plan Attendance Rate)</div>
@@ -320,13 +324,11 @@
                 </div>
             </div>
 
-            <!-- Requirements -->
             <div class="requirements-section">
                 <div class="requirements-title">Bonus Requirements</div>
                 <div id="requirements"></div>
             </div>
 
-            <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-value" id="totalDeliveredHours">0</div><div class="stat-label">Total Delivered Hours</div></div>
                 <div class="stat-card"><div class="stat-value" id="totalPlannedHours">0</div><div class="stat-label">Total Planned Hours</div></div>
@@ -334,15 +336,14 @@
                 <div class="stat-card"><div class="stat-value" id="activeClients">0</div><div class="stat-label">Active Clients</div></div>
             </div>
 
-            <!-- Weekly TPAR -->
             <div class="weekly-tpar-section">
                 <div class="requirements-title">Weekly TPAR Breakdown</div>
                 <div class="weekly-tpar-grid" id="weeklyTPAR"></div>
             </div>
 
-            <!-- Client Breakdown -->
             <div class="client-breakdown-section">
                 <div class="requirements-title">Client Performance Breakdown</div>
+                <div id="dataThruBanner"></div>
                 <div class="sort-controls">
                     <button class="sort-btn active" onclick="sortClients('rate', event)">Sort by Attendance %</button>
                     <button class="sort-btn"        onclick="sortClients('deficit', event)">Sort by Hours Behind</button>
@@ -395,15 +396,14 @@
         const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
 
-        // US: M/D/YY or M/D/YYYY  ← supports 2-digit years like "2/9/26"
+        // US: M/D/YY or M/D/YYYY — supports 2-digit years like "2/9/26"
         const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
         if (us) {
             let year = Number(us[3]);
-            if (year < 100) year += 2000;   // "26" → 2026
+            if (year < 100) year += 2000;
             return new Date(year, Number(us[1]) - 1, Number(us[2]));
         }
 
-        // Fallback
         const d = new Date(s);
         return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
     }
@@ -418,8 +418,17 @@
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
+    // ── KEY: scan all billing rows to find the latest DateOfService in the dataset
+    function getLastBilledDate(billingData) {
+        let latest = null;
+        billingData.forEach(row => {
+            const d = toLocalDate(row.DateOfService);
+            if (d && (!latest || d > latest)) latest = d;
+        });
+        return latest;
+    }
+
     // Weeks a client was active inside the quarter window.
-    // Math.round prevents floating-point day-counts inflating by a phantom week.
     function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
         const windowStart = (clientStartDate && clientStartDate > quarterStart)
             ? clientStartDate : quarterStart;
@@ -429,7 +438,7 @@
         return Math.max(0, Math.round((days / 7) * 10) / 10);
     }
 
-    // Monday-anchored ISO week key from a local Date
+    // Monday-anchored ISO week key
     function weekKey(localDate) {
         const dow = localDate.getDay();
         const diffToMon = (dow === 0) ? -6 : 1 - dow;
@@ -536,10 +545,8 @@
             .sort((a, b) => new Date(a.weekStart) - new Date(b.weekStart));
     }
 
-    function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData) {
+    function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData, effectiveEnd) {
         const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
-        const today        = todayLocal();
-        const effectiveEnd = today < quarterEnd ? today : quarterEnd;
 
         // Client name map
         const clientNames = new Map();
@@ -576,6 +583,7 @@
             const endDate        = clientEndDates.get(clientId);
             const clientName     = clientNames.get(clientId) || 'Unknown Client';
 
+            // effectiveEnd passed in — same value used for aggregate totals
             const weeksActive  = calcWeeksActive(quarterStart, effectiveEnd, startDate, endDate);
             const totalPlanned = plannedPerWeek * weeksActive;
             const difference   = deliveredHours - totalPlanned;
@@ -638,26 +646,18 @@
                              : client.trend === 'declining'  ? '↘'
                              : client.trendText === 'Stable' ? '→' : '—';
 
-            // Build date range pills
             const startStr = client.startDate ? fmtDate(client.startDate) : null;
             const endStr   = client.endDate   ? fmtDate(client.endDate)   : null;
             let datePillsHTML = '';
             if (startStr || endStr) {
-                const startPill = startStr
-                    ? `<span class="date-pill">▶ ${startStr}</span>` : '';
-                const arrow     = (startStr && endStr)
-                    ? `<span class="date-arrow">→</span>` : '';
-                const endPill   = endStr
-                    ? `<span class="date-pill ${discharged ? 'end-past' : ''}">■ ${endStr}</span>` : '';
-                datePillsHTML = `<div class="client-dates">${startPill}${arrow}${endPill}</div>`;
+                const startPill = startStr ? `<span class="date-pill">▶ ${startStr}</span>` : '';
+                const arrow     = (startStr && endStr) ? `<span class="date-arrow">→</span>` : '';
+                const endPill   = endStr ? `<span class="date-pill ${discharged ? 'end-past' : ''}">■ ${endStr}</span>` : '';
+                datePillsHTML   = `<div class="client-dates">${startPill}${arrow}${endPill}</div>`;
             }
 
-            const statusLabel = discharged ? 'Discharged'
-                              : isAbove    ? 'On Track'
-                              :              'Behind';
-            const statusClass = discharged ? 'discharged'
-                              : isAbove    ? 'above'
-                              :              'below';
+            const statusLabel = discharged ? 'Discharged' : isAbove ? 'On Track' : 'Behind';
+            const statusClass = discharged ? 'discharged' : isAbove ? 'above'    : 'below';
 
             row.innerHTML = `
                 <td>
@@ -707,6 +707,13 @@
                 row.ProcedureCode === '97153'
             );
 
+            // ── Determine effectiveEnd: last billed date anywhere in the dataset ──
+            const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
+            const lastBilledDate = getLastBilledDate(quarterBilling);
+            const effectiveEnd   = lastBilledDate
+                ? (lastBilledDate < quarterEnd ? lastBilledDate : quarterEnd)
+                : quarterEnd;
+
             // Build maps from planned-hours sheet
             const plannedHoursMap  = new Map();
             const clientStartDates = new Map();
@@ -722,7 +729,6 @@
                 const startDate = toLocalDate(row.WeekStartDate);
                 if (startDate) clientStartDates.set(clientId, startDate);
 
-                // Column D: "EndDate" (also support legacy "WeekEndDate")
                 const endDate = toLocalDate(row.EndDate || row.WeekEndDate);
                 if (endDate) clientEndDates.set(clientId, endDate);
             });
@@ -735,7 +741,7 @@
                     authorizedUnitsMap.set(clientId, parseFloat(row.AuthorizedUnits) / 4 / 26);
             });
 
-            // Aggregate delivered hours per client (respecting start / end dates)
+            // Aggregate delivered hours per client
             const clientWeekHours = new Map();
             quarterBilling.forEach(row => {
                 const clientId    = row.ClientId || row.ClientID;
@@ -751,11 +757,7 @@
                 clientWeekHours.set(clientId, (clientWeekHours.get(clientId) || 0) + hours);
             });
 
-            // Aggregate totals
-            const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
-            const today        = todayLocal();
-            const effectiveEnd = today < quarterEnd ? today : quarterEnd;
-
+            // Aggregate totals — all using the same effectiveEnd
             let totalDeliveredHours  = 0;
             let totalPlannedHours    = 0;
             let totalAuthorizedHours = 0;
@@ -783,9 +785,9 @@
             const bonus         = (tpar >= BASELINE_TPAR && ahu >= MIN_AHU) ? calculateBonus(improvementPP) : 0;
 
             const weeklyData = calculateWeeklyTPAR(quarterBilling, plannedHoursMap, clientStartDates, clientEndDates);
-            const clientData = calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, quarterBilling);
+            const clientData = calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, quarterBilling, effectiveEnd);
 
-            renderDashboard({ tpar, ahu, improvementPP, bonus, totalDeliveredHours, totalPlannedHours, totalAuthorizedHours, activeClients: activeClients.size, weeklyData, clientData });
+            renderDashboard({ tpar, ahu, improvementPP, bonus, totalDeliveredHours, totalPlannedHours, totalAuthorizedHours, activeClients: activeClients.size, weeklyData, clientData, effectiveEnd });
 
         } catch (error) {
             showError(error);
@@ -846,6 +848,12 @@
                 </div>
             </div>
         `;
+
+        // "Data through" banner
+        if (data.effectiveEnd) {
+            document.getElementById('dataThruBanner').innerHTML =
+                `<div class="data-thru-banner">📅 Data through ${fmtDate(data.effectiveEnd)} — planned hours calculated to this date</div>`;
+        }
 
         const { quarter, year, startDate, endDate } = getCurrentQuarter();
         const today = todayLocal();
