@@ -426,12 +426,37 @@
         return mon;
     }
 
-    // Count distinct calendar weeks a client was active.
-    // Snaps both ends to their Monday and counts week boundaries,
-    // so a client who starts mid-week still gets that full week counted.
-    // Example: Feb 23 (Mon) → Mar 6 (Fri, last billed date whose Mon = Mar 2)
-    //   toMonday(Feb 23) = Feb 23, toMonday(Mar 6) = Mar 2
-    //   (Mar 2 - Feb 23) / 7 days + 1 = 2 weeks ✓
+    // Count Mon–Fri workdays between two dates (inclusive)
+    function countWorkdays(from, to) {
+        let count = 0;
+        const d = new Date(from);
+        while (d <= to) {
+            const dow = d.getDay();
+            if (dow >= 1 && dow <= 5) count++;
+            d.setDate(d.getDate() + 1);
+        }
+        return count;
+    }
+
+    // Calculate effective weeks active, prorating partial first and last weeks
+    // by actual workdays so a client who starts on Friday or ends on Monday
+    // isn't penalized with a full week of planned hours.
+    //
+    // Logic:
+    //   • Same calendar week → workdays(start, end) / 5
+    //   • Different weeks    → prorate first week + full middle weeks + prorate last week
+    //
+    // Examples:
+    //   Valentina: Mon Feb 23 → Fri Mar 6
+    //     first week: Mon–Fri = 5 wd / 5 = 1.0
+    //     full middle: 0
+    //     last week:  Mon–Fri Mar 2–6 = 5 wd / 5 = 1.0  → 2.0 wks × 20 = 40 hrs ✓
+    //
+    //   Zaeden: Fri Feb 6 → Mon Feb 9
+    //     startMon=Feb 2, endMon=Feb 9 (different weeks)
+    //     first week: Fri Feb 6 only = 1 wd / 5 = 0.2
+    //     full middle: 0
+    //     last week:  Mon Feb 9 only = 1 wd / 5 = 0.2  → 0.4 wks × 20 = 8 hrs ✓
     function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
         const windowStart = (clientStartDate && clientStartDate > quarterStart)
             ? clientStartDate : quarterStart;
@@ -441,8 +466,26 @@
 
         const startMon = toMonday(windowStart);
         const endMon   = toMonday(windowEnd);
-        const weeks    = Math.round((endMon - startMon) / (1000 * 60 * 60 * 24 * 7)) + 1;
-        return Math.max(1, weeks);
+
+        // Same calendar week — just prorate by workdays in that window
+        if (startMon.getTime() === endMon.getTime()) {
+            return countWorkdays(windowStart, windowEnd) / 5;
+        }
+
+        // First partial week: windowStart → Friday of that week
+        const firstFri = new Date(startMon);
+        firstFri.setDate(startMon.getDate() + 4); // Monday + 4 = Friday
+        const firstWeekFactor = countWorkdays(windowStart, firstFri) / 5;
+
+        // Last partial week: Monday of end week → windowEnd
+        const lastWeekFactor = countWorkdays(endMon, windowEnd) / 5;
+
+        // Full weeks strictly between first and last partial weeks
+        const nextMon  = new Date(startMon);
+        nextMon.setDate(startMon.getDate() + 7);
+        const fullWeeks = Math.max(0, Math.round((endMon - nextMon) / (1000 * 60 * 60 * 24 * 7)));
+
+        return firstWeekFactor + fullWeeks + lastWeekFactor;
     }
 
     // Scan all billing rows to find the latest DateOfService in the dataset
@@ -457,8 +500,7 @@
 
     // Monday-anchored ISO week key
     function weekKey(localDate) {
-        const mon = toMonday(localDate);
-        return mon.toISOString().split('T')[0];
+        return toMonday(localDate).toISOString().split('T')[0];
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -673,10 +715,15 @@
             const statusLabel = discharged ? 'Discharged' : isAbove ? 'On Track' : 'Behind';
             const statusClass = discharged ? 'discharged' : isAbove ? 'above'    : 'below';
 
+            // Show weeks active to 1 decimal so prorated values are visible
+            const weeksDisplay = Number.isInteger(client.weeksActive)
+                ? client.weeksActive
+                : client.weeksActive.toFixed(1);
+
             row.innerHTML = `
                 <td>
                     <div class="client-name">${client.clientName}</div>
-                    <div class="client-meta">#${client.clientId} · ${client.plannedPerWeek.toFixed(1)} hrs/wk · ${client.weeksActive} wks active</div>
+                    <div class="client-meta">#${client.clientId} · ${client.plannedPerWeek.toFixed(1)} hrs/wk · ${weeksDisplay} wks active</div>
                     ${datePillsHTML}
                 </td>
                 <td class="hours-cell">${client.delivered.toFixed(1)} hrs</td>
