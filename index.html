@@ -202,9 +202,7 @@
             display: inline-block; padding: 0.1rem 0.5rem; border-radius: 6px;
             background: rgba(102,126,234,0.08); color: var(--accent); font-weight: 600; font-size: 0.75rem;
         }
-        .client-dates .date-pill.end-past {
-            background: rgba(113,128,150,0.1); color: var(--text-dim);
-        }
+        .client-dates .date-pill.end-past { background: rgba(113,128,150,0.1); color: var(--text-dim); }
         .client-dates .date-arrow { color: var(--text-dim); font-size: 0.8rem; }
 
         .hours-cell { font-family: 'Fira Code', monospace; font-weight: 600; }
@@ -384,6 +382,7 @@
     const MIN_AHU       = 90;
 
     // ── DATE HELPERS ─────────────────────────────────────────────────────────────
+
     function toLocalDate(value) {
         if (!value) return null;
         if (value instanceof Date) {
@@ -396,7 +395,7 @@
         const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
 
-        // US: M/D/YY or M/D/YYYY — supports 2-digit years like "2/9/26"
+        // US: M/D/YY or M/D/YYYY — handles 2-digit years like "2/9/26"
         const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
         if (us) {
             let year = Number(us[3]);
@@ -418,7 +417,35 @@
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
-    // ── KEY: scan all billing rows to find the latest DateOfService in the dataset
+    // Snap a date back to its Monday
+    function toMonday(d) {
+        const dow  = d.getDay();
+        const diff = (dow === 0) ? -6 : 1 - dow;
+        const mon  = new Date(d);
+        mon.setDate(d.getDate() + diff);
+        return mon;
+    }
+
+    // Count distinct calendar weeks a client was active.
+    // Snaps both ends to their Monday and counts week boundaries,
+    // so a client who starts mid-week still gets that full week counted.
+    // Example: Feb 23 (Mon) → Mar 6 (Fri, last billed date whose Mon = Mar 2)
+    //   toMonday(Feb 23) = Feb 23, toMonday(Mar 6) = Mar 2
+    //   (Mar 2 - Feb 23) / 7 days + 1 = 2 weeks ✓
+    function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
+        const windowStart = (clientStartDate && clientStartDate > quarterStart)
+            ? clientStartDate : quarterStart;
+        let windowEnd = effectiveEnd;
+        if (clientEndDate && clientEndDate < windowEnd) windowEnd = clientEndDate;
+        if (windowEnd < windowStart) return 0;
+
+        const startMon = toMonday(windowStart);
+        const endMon   = toMonday(windowEnd);
+        const weeks    = Math.round((endMon - startMon) / (1000 * 60 * 60 * 24 * 7)) + 1;
+        return Math.max(1, weeks);
+    }
+
+    // Scan all billing rows to find the latest DateOfService in the dataset
     function getLastBilledDate(billingData) {
         let latest = null;
         billingData.forEach(row => {
@@ -428,24 +455,12 @@
         return latest;
     }
 
-    // Weeks a client was active inside the quarter window.
-    function calcWeeksActive(quarterStart, effectiveEnd, clientStartDate, clientEndDate) {
-        const windowStart = (clientStartDate && clientStartDate > quarterStart)
-            ? clientStartDate : quarterStart;
-        let windowEnd = effectiveEnd;
-        if (clientEndDate && clientEndDate < windowEnd) windowEnd = clientEndDate;
-        const days = Math.max(0, (windowEnd - windowStart) / (1000 * 60 * 60 * 24));
-        return Math.max(0, Math.round((days / 7) * 10) / 10);
-    }
-
     // Monday-anchored ISO week key
     function weekKey(localDate) {
-        const dow = localDate.getDay();
-        const diffToMon = (dow === 0) ? -6 : 1 - dow;
-        const mon = new Date(localDate);
-        mon.setDate(localDate.getDate() + diffToMon);
+        const mon = toMonday(localDate);
         return mon.toISOString().split('T')[0];
     }
+
     // ─────────────────────────────────────────────────────────────────────────────
 
     async function fetchSheetData(sheetId) {
@@ -546,7 +561,7 @@
     }
 
     function calculateClientPerformance(clientWeekHours, plannedHoursMap, clientStartDates, clientEndDates, billingData, effectiveEnd) {
-        const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
+        const { startDate: quarterStart } = getCurrentQuarter();
 
         // Client name map
         const clientNames = new Map();
@@ -583,7 +598,6 @@
             const endDate        = clientEndDates.get(clientId);
             const clientName     = clientNames.get(clientId) || 'Unknown Client';
 
-            // effectiveEnd passed in — same value used for aggregate totals
             const weeksActive  = calcWeeksActive(quarterStart, effectiveEnd, startDate, endDate);
             const totalPlanned = plannedPerWeek * weeksActive;
             const difference   = deliveredHours - totalPlanned;
@@ -662,7 +676,7 @@
             row.innerHTML = `
                 <td>
                     <div class="client-name">${client.clientName}</div>
-                    <div class="client-meta">#${client.clientId} · ${client.plannedPerWeek.toFixed(1)} hrs/wk · ${client.weeksActive.toFixed(1)} wks active</div>
+                    <div class="client-meta">#${client.clientId} · ${client.plannedPerWeek.toFixed(1)} hrs/wk · ${client.weeksActive} wks active</div>
                     ${datePillsHTML}
                 </td>
                 <td class="hours-cell">${client.delivered.toFixed(1)} hrs</td>
@@ -707,7 +721,7 @@
                 row.ProcedureCode === '97153'
             );
 
-            // ── Determine effectiveEnd: last billed date anywhere in the dataset ──
+            // effectiveEnd = last billed date in dataset (capped at quarter end)
             const { startDate: quarterStart, endDate: quarterEnd } = getCurrentQuarter();
             const lastBilledDate = getLastBilledDate(quarterBilling);
             const effectiveEnd   = lastBilledDate
@@ -729,6 +743,7 @@
                 const startDate = toLocalDate(row.WeekStartDate);
                 if (startDate) clientStartDates.set(clientId, startDate);
 
+                // Column D: "EndDate" (also support legacy "WeekEndDate")
                 const endDate = toLocalDate(row.EndDate || row.WeekEndDate);
                 if (endDate) clientEndDates.set(clientId, endDate);
             });
@@ -849,7 +864,6 @@
             </div>
         `;
 
-        // "Data through" banner
         if (data.effectiveEnd) {
             document.getElementById('dataThruBanner').innerHTML =
                 `<div class="data-thru-banner">📅 Data through ${fmtDate(data.effectiveEnd)} — planned hours calculated to this date</div>`;
